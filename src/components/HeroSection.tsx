@@ -1,9 +1,9 @@
 import { Check, Shield, TrendingUp, Users } from 'lucide-react';
-import lcLogo from '../images/lc-logo-lang-420.webp';
 import heroImage from '../images/cedrik-leibinn-hero-960.webp';
 import heroImageSmall from '../images/cedrik-leibinn-hero-560.webp';
 import Container from './ui/Container';
 import Button from './ui/Button';
+import Eyebrow from './ui/Eyebrow';
 import Reveal from './ui/Reveal';
 
 const benefits = [
@@ -20,50 +20,33 @@ const trustMarkers = [
 
 export default function HeroSection() {
   return (
-    <section
-      id="hero"
-      className="lc-vignette relative overflow-hidden bg-navy pt-header"
-    >
+    <section id="hero" className="lc-vignette relative overflow-hidden bg-navy pt-header">
       <Container size="wide" className="relative">
-        <div className="grid items-center gap-14 py-16 lg:grid-cols-12 lg:gap-12 lg:py-24 xl:gap-16">
+        <div className="grid items-center gap-14 py-14 lg:grid-cols-12 lg:gap-12 lg:py-20 xl:gap-16">
           {/* --- Copy ------------------------------------------------ */}
           <div className="lg:col-span-7">
             <Reveal>
-              <img
-                src={lcLogo}
-                alt="Leibinn Consulting"
-                width={420}
-                height={61}
-                fetchPriority="high"
-                className="h-7 w-auto md:h-8"
-              />
+              <Eyebrow>Mehr Leistung im Team. Weniger Aufwand im Alltag.</Eyebrow>
             </Reveal>
 
-            <Reveal delay={80} className="mt-8">
-              {/* Gradient text is kept here because both stops clear AA on
-                  navy (#B68F40 6.8:1, #DCC383 11.9:1). It is dropped on the
-                  cream sections, where the same ramp falls to 1.6–2.7:1. */}
-              <p className="lc-gradient-text max-w-measure-sm font-display text-title-lg font-medium">
-                Mehr Leistung im Team. Weniger Aufwand im Alltag.
-              </p>
-            </Reveal>
-
-            <Reveal delay={140} as="h1" className="mt-4 max-w-[18ch] text-display-xl text-sheet-1">
+            <Reveal delay={90} as="h1" className="mt-6 max-w-[15ch] text-display-2xl text-sheet-1">
               Das moderne Benefit-System für Unternehmen
             </Reveal>
 
-            <Reveal delay={200} as="p" className="mt-6 max-w-measure text-lead text-sheet-2">
+            <Reveal delay={170} as="p" className="mt-6 max-w-measure text-lead text-sheet-2">
               Wir bündeln die wirkungsvollsten Gesundheits- und Vorsorgebenefits in
               einem System — verwaltungsarm, steuerlich optimiert und flexibel für
               jedes Teammitglied nutzbar.
             </Reveal>
 
-            <ul className="mt-9 space-y-4">
+            <Reveal delay={240} className="mt-9 h-px bg-white/10" />
+
+            <ul className="mt-7 space-y-3.5">
               {benefits.map((benefit, index) => (
                 <Reveal
                   key={benefit}
                   as="li"
-                  delay={260 + index * 70}
+                  delay={290 + index * 70}
                   className="flex items-start gap-3.5 text-body-lg text-sheet-1"
                 >
                   <span
@@ -77,28 +60,24 @@ export default function HeroSection() {
               ))}
             </ul>
 
-            <Reveal delay={500} className="mt-10">
-              <Button toId="contact-form-section" size="lg">
+            
+
+            <Reveal delay={560} className="mt-9">
+              <Button toId="contact-form-section" size="lg" className="rounded-full">
                 Jetzt Erstgespräch sichern
               </Button>
             </Reveal>
           </div>
 
           {/* --- Portrait --------------------------------------------- */}
-          <Reveal delay={260} className="lg:col-span-5">
+          <Reveal delay={300} className="lg:col-span-5">
             <div className="relative mx-auto max-w-sm lg:max-w-none">
-              {/* Offset rule behind the photo — a passe-partout edge that
-                  gives the image a frame without a heavy container. */}
               <div
                 aria-hidden="true"
-                className="absolute -right-3 -top-3 hidden h-full w-full rounded-3xl border border-gold/25 sm:block"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute -inset-8 -z-10 rounded-full bg-gold/10 blur-3xl"
+                className="absolute -inset-10 -z-10 rounded-full bg-gold/10 blur-3xl"
               />
 
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 lc-shadow-dark-3">
+              <div className="relative overflow-hidden rounded-[2rem] bg-navy-2 ring-1 ring-inset ring-white/10">
                 <img
                   src={heroImage}
                   srcSet={`${heroImageSmall} 560w, ${heroImage} 960w`}
@@ -108,36 +87,31 @@ export default function HeroSection() {
                   height={1344}
                   fetchPriority="high"
                   decoding="async"
-                  className="aspect-[4/5] w-full object-cover object-top lg:aspect-[5/7]"
+                  className="aspect-[4/5] w-full object-cover object-top"
                 />
                 <div
                   aria-hidden="true"
-                  className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-navy/60 to-transparent"
+                  className="absolute inset-0 bg-gradient-to-t from-navy via-navy/15 to-navy/40"
                 />
+
+                {/* Floating marker card, as in the reference. Replaces the
+                    three chips that used to crop the subject's torso. */}
+                <ul className="absolute bottom-5 left-5 w-[min(18rem,calc(100%-2.5rem))] space-y-3 rounded-2xl border border-white/12 bg-navy/75 p-4 backdrop-blur-xl">
+                  {trustMarkers.map(({ icon: Icon, label }) => (
+                    <li key={label} className="flex items-center gap-3">
+                      <Icon
+                        className="h-4 w-4 flex-shrink-0 text-gold-light"
+                        strokeWidth={1.75}
+                        aria-hidden="true"
+                      />
+                      <span className="text-body-sm font-medium text-sheet-1">{label}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </Reveal>
         </div>
-
-        {/* --- Trust strip ---------------------------------------------
-            Previously three stacked chips pinned over the photo's bottom
-            corner, where they cropped the subject and collided on small
-            screens. As a base rule they anchor the whole hero instead. */}
-        <Reveal delay={560}>
-          <ul className="grid grid-cols-1 gap-px overflow-hidden border-t border-white/10 sm:grid-cols-3">
-            {trustMarkers.map(({ icon: Icon, label }) => (
-              <li
-                key={label}
-                className="flex items-center gap-3 py-5 sm:justify-center sm:px-4 sm:[&:not(:first-child)]:border-l sm:[&:not(:first-child)]:border-white/10"
-              >
-                <Icon className="h-4 w-4 flex-shrink-0 text-gold-light" strokeWidth={1.75} aria-hidden="true" />
-                <span className="text-caption font-medium tracking-wide text-sheet-2">
-                  {label}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Reveal>
       </Container>
     </section>
   );

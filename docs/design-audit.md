@@ -220,3 +220,97 @@ weight is down substantially because of the images.
 - 39 automated interaction / semantics / accessibility assertions — all passing
 - Rendered-DOM contrast audit (alpha- and gradient-aware) — 0 failures
 - No horizontal overflow at 390 / 768 / 1440px
+
+---
+
+# Addendum — visual direction
+
+After the rebuild above, the client supplied a reference site (a Framer
+template for a tax practice) as the target look. This pass adapts that design
+language to Leibinn's identity. The brief was explicit: **navy stays the
+dominant ground — no cream-dominant flip — and the corporate palette stays
+recognisable.**
+
+## What was adopted
+
+| Reference pattern | Applied to |
+|---|---|
+| Floating pill header | Site header: logo, links, solid CTA in one rounded bar |
+| Eyebrow as a dash + uppercase label | Every section opener |
+| Oversized headline left, supporting copy top-right | `SectionHead`, used by six sections |
+| Numbered row table with hover bands | Herausforderung (5 rows) |
+| Columns split by hairlines, each with an index | Das System (4), Ihre Vorteile (6) |
+| Accent route card + stepped rows | Umsetzung |
+| Card with a floating index pill | Konsequenzen |
+| Big single quote with counter, progress bar, prev/next | Kundenstimmen |
+| Numbered answer index with circular +/− | FAQ |
+| Split panel, dark pitch beside a bright form | Kontaktformular |
+| Oversized wordmark cropped by the page edge | Footer |
+
+## Palette
+
+Navy, gold and cream are unchanged. What was added is **depth in the navy**,
+not new hues:
+
+```
+--navy-0  #000022   page ground (corporate, untouched)
+--navy-1  #07061f   alternating section band
+--navy-2  #0c0b2e   raised panel
+--navy-3  #14123f   nested panel, row hover
+--navy-4  #1e1b52   strokes, active row
+```
+
+The previous build had only `#000022` and `#05052F` — barely a step apart —
+so every "card" read as flat against the page. Four steps let panels actually
+lift, which is what makes the reference's layering work. Each step carries
+slightly more red than a pure blue-navy, which keeps the dark field from going
+cold next to the gold.
+
+Three surface tiers now sit on that ground, mirroring the reference:
+**raised** (navy-2, most panels), **gold** (the one loud accent — the Umsetzung
+route card), and **paper** (cream — reserved for the contact form, so the
+primary conversion point is the single brightest thing on the page).
+
+## Typography
+
+`Inter Tight` → **`Outfit`** for display, self-hosted as a variable font.
+The reference's warmth comes largely from a wide geometric face; Inter Tight is
+neutral and technical by comparison. Outfit was chosen over Plus Jakarta Sans
+(too narrow), Figtree (too close to Inter) and Bricolage Grotesque (too
+condensed) by rendering all four against the reference. Inter stays for body
+copy and UI, where its larger x-height reads better small.
+
+First-paint webfont cost went from 90.9 KB to 78.7 KB, because Outfit's latin
+subset is smaller than Inter Tight's.
+
+## Deliberately not adopted
+
+The reference leans heavily on social proof that Leibinn does not have:
+`720+ clients`, `$12M+ saved`, `99% satisfaction`, `20+ years`, an avatar
+stack and a four-cell stat band. **None of it was invented.** Those elements
+were dropped rather than filled with placeholder numbers. If the client
+supplies real figures, the stat band and hero stat card are straightforward
+to add.
+
+## New strings introduced
+
+The copy deck is otherwise untouched. These are structural labels, not
+marketing copy, and are flagged here for the client to approve or replace:
+
+- `Nr.` / `Herausforderung` / `Im Detail` — column headers on the row table
+- `05 Handlungsfelder` — count chip on the Herausforderung section
+- `Ihr Weg zum System` — label on the Umsetzung route card
+- `Kostenfreie Analyse` / `Antwort in 24 Stunden` — top bar of the mid-page CTA
+- `Kostenlose Benefit-Analyse` — eyebrow on the contact panel
+- `01 / Navigation` / `02 / Rechtliches` — footer column headers
+- `weniger anzeigen` — needed to close an expanded card
+- Form validation messages — the old form had none
+
+## Verification after this pass
+
+- `npm run lint`, `npm run typecheck` — clean
+- 39 interaction / semantics / accessibility assertions — all passing
+- Rendered-DOM contrast audit — 0 AA failures. One node is skipped: the
+  oversized footer wordmark, which is `aria-hidden`, duplicates the logo
+  directly above it, and is exempt under WCAG 1.4.3 as pure decoration.
+- No horizontal overflow at 390 / 768 / 1440px

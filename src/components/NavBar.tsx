@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { ArrowUpRight, Menu, X } from 'lucide-react';
 import lcLogo from '../images/lc-logo-lang-420.webp';
 import { useScrolled } from '../hooks/useScrolled';
 import { useScrollSpy } from '../hooks/useScrollSpy';
@@ -17,9 +17,6 @@ const navIds = navItems.map((item) => item.id);
 
 export default function NavBar() {
   const scrolled = useScrolled(80);
-  // The hero is a full viewport, so past ~70vh the logo has left the screen
-  // and the header can pick it up without the two appearing at once.
-  const pastHero = useScrolled(typeof window === 'undefined' ? 600 : window.innerHeight * 0.7);
   const activeId = useScrollSpy(navIds);
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,37 +88,31 @@ export default function NavBar() {
         Zum Hauptinhalt springen
       </a>
 
-      <header
-        className={cx(
-          'fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter,box-shadow] duration-500 ease-brand',
-          scrolled
-            ? 'border-b border-white/10 bg-navy/85 lc-shadow-dark-1 backdrop-blur-xl supports-[backdrop-filter]:bg-navy/70'
-            : 'border-b border-transparent bg-transparent'
-        )}
-      >
-        <div className="lc-container lc-container-wide flex h-header items-center justify-between gap-6">
-          {/* Logo — held back until the hero's own logo is out of view. */}
+      <header className="fixed inset-x-0 top-0 z-50 pt-3 sm:pt-4">
+        <div
+          className={cx(
+            'lc-container lc-container-wide flex h-[3.75rem] items-center justify-between gap-4 rounded-full pl-5 pr-2 transition-[background-color,box-shadow,border-color] duration-500 ease-brand sm:gap-6 sm:pl-7',
+            scrolled
+              ? 'border border-white/10 bg-navy-2/90 lc-shadow-dark-2 backdrop-blur-xl'
+              : 'border border-white/8 bg-navy-2/55 backdrop-blur-md'
+          )}
+        >
           <a
             href="#hero"
             onClick={(event) => {
               event.preventDefault();
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={cx(
-              // -my-2/py-2 grows the hit area to 40px without moving the mark.
-              'flex items-center -my-2 py-2 transition-all duration-500 ease-brand',
-              pastHero
-                ? 'translate-y-0 opacity-100'
-                : 'pointer-events-none -translate-y-1 opacity-0'
-            )}
+            // -my-2/py-2 grows the hit area to 40px without moving the mark.
+            className="-my-2 flex items-center py-2"
             aria-label="Leibinn Consulting — zum Seitenanfang"
           >
             <img
               src={lcLogo}
               alt="Leibinn Consulting"
-              width={1761}
-              height={254}
-              className="h-6 w-auto md:h-7"
+              width={420}
+              height={61}
+              className="h-5 w-auto sm:h-6"
             />
           </a>
 
@@ -136,7 +127,7 @@ export default function NavBar() {
                   onClick={() => go(item.id)}
                   aria-current={isActive ? 'true' : undefined}
                   className={cx(
-                    'relative rounded-lg px-4 py-2 text-body-sm font-medium transition-colors duration-200',
+                    'relative rounded-full px-4 py-2 text-body-sm font-medium transition-colors duration-200',
                     isActive ? 'text-sheet-1' : 'text-sheet-3 hover:text-sheet-1'
                   )}
                 >
@@ -157,9 +148,10 @@ export default function NavBar() {
             <button
               type="button"
               onClick={() => go('contact-form-section')}
-              className="hidden rounded-lg bg-gold-gradient bg-[length:200%_100%] bg-left px-5 py-2.5 text-body-sm font-semibold text-navy shadow-[0_2px_10px_rgb(182_143_64_/_0.25)] transition-[background-position,transform,box-shadow] duration-300 ease-brand hover:bg-right hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgb(182_143_64_/_0.35)] sm:inline-flex"
+              className="group hidden items-center gap-2 rounded-full bg-gold-gradient bg-[length:200%_100%] bg-left px-5 py-2.5 text-body-sm font-semibold text-navy shadow-[0_2px_10px_rgb(182_143_64_/_0.25)] transition-[background-position,transform,box-shadow] duration-300 ease-brand hover:bg-right hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgb(182_143_64_/_0.35)] sm:inline-flex"
             >
               Erstgespräch anfragen
+              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 ease-brand group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
             </button>
 
             <button
@@ -169,7 +161,7 @@ export default function NavBar() {
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               aria-label={menuOpen ? 'Menü schließen' : 'Menü öffnen'}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/12 text-sheet-1 transition-colors duration-200 hover:bg-white/[0.06] lg:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 text-sheet-1 transition-colors duration-200 hover:bg-white/[0.06] lg:hidden"
             >
               {menuOpen ? (
                 <X className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />

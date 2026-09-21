@@ -3,7 +3,8 @@ import { useReveal } from '../../hooks/useReveal';
 import { cx } from '../../lib/cx';
 
 interface RevealProps {
-  children: ReactNode;
+  /** Optional so Reveal can also animate in bare rules and dividers. */
+  children?: ReactNode;
   /** Stagger offset in ms. Capped low — the old code ran up to 1000ms + 120ms
    *  per item, so the last trust card appeared ~2.4s after it scrolled in. */
   delay?: number;

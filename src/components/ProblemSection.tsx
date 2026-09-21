@@ -1,7 +1,8 @@
 import { Layers, FileText, Users, EyeOff, Percent } from 'lucide-react';
 import Container from './ui/Container';
 import Button from './ui/Button';
-import Eyebrow from './ui/Eyebrow';
+import Chip from './ui/Chip';
+import SectionHead from './ui/SectionHead';
 import Reveal from './ui/Reveal';
 
 const problems = [
@@ -41,74 +42,72 @@ export default function ProblemSection() {
   return (
     <section id="problem-section" className="bg-navy py-section">
       <Container>
-        <div className="grid gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16 xl:gap-20">
-          {/* Sticky intro — the list opposite is long enough that the
-              argument would otherwise scroll out of sight before the
-              evidence has been read. */}
-          <div className="lg:sticky lg:top-[calc(var(--header-h)+3rem)] lg:self-start">
-            <Reveal>
-              <Eyebrow>Was Unternehmen heute herausfordert</Eyebrow>
-            </Reveal>
+        <SectionHead
+          eyebrow="Was Unternehmen heute herausfordert"
+          title={
+            <>
+              <span className="block text-sheet-3">Benefits sind relevanter denn je.</span>
+              <span className="block">Doch kaum ein Unternehmen hat ein funktionierendes System.</span>
+            </>
+          }
+          aside={
+            <>
+              <p>
+                Viele Unternehmen wissen, dass attraktive Benefits die
+                Mitarbeiterbindung, Gesundheit und Produktivität steigern. In der
+                Praxis scheitert es jedoch oft an Zeit, Know-how und der richtigen
+                Struktur – aus guten Ideen wird kein verlässliches System.
+              </p>
+              <Chip dot className="mt-6">
+                05 Handlungsfelder
+              </Chip>
+            </>
+          }
+        />
 
-            <Reveal delay={70} as="p" className="lc-gradient-text mt-6 font-display text-title-lg font-medium">
-              Benefits sind relevanter denn je.
-            </Reveal>
+        {/* Row table, as in the reference: an index column, the item, and what
+            it means. Reads as a system rather than five loose cards. */}
+        <div className="mt-16">
+          <Reveal className="hidden grid-cols-[4rem_minmax(0,1fr)_minmax(0,1.1fr)] gap-8 border-b border-white/10 pb-4 md:grid">
+            <span className="text-meta uppercase text-sheet-3">Nr.</span>
+            <span className="text-meta uppercase text-sheet-3">Herausforderung</span>
+            <span className="text-meta uppercase text-sheet-3">Im Detail</span>
+          </Reveal>
 
-            <Reveal delay={120} as="h2" className="mt-3 max-w-[18ch] text-display-md text-sheet-1">
-              Doch kaum ein Unternehmen hat ein funktionierendes System.
-            </Reveal>
-
-            <Reveal delay={180} as="p" className="mt-6 max-w-measure text-body-lg text-sheet-2">
-              Viele Unternehmen wissen, dass attraktive Benefits die
-              Mitarbeiterbindung, Gesundheit und Produktivität steigern. In der
-              Praxis scheitert es jedoch oft an Zeit, Know-how und der richtigen
-              Struktur – aus guten Ideen wird kein verlässliches System.
-            </Reveal>
-
-            <Reveal delay={240} className="mt-9">
-              <Button toId="contact-form-section">Kostenlose Analyse anfordern</Button>
-            </Reveal>
-          </div>
-
-          {/* Hairline list rather than five boxes. Five items never divide
-              cleanly into a two-column card grid — the old layout left the
-              fifth card orphaned and centred under the other four. */}
-          <ul className="border-b border-white/10">
+          <ul>
             {problems.map(({ icon: Icon, title, description }, index) => (
               <Reveal
                 key={title}
                 as="li"
-                delay={index * 70}
-                className="group relative border-t border-white/10"
+                delay={index * 60}
+                className="lc-row border-b border-white/10"
               >
-                <span
-                  aria-hidden="true"
-                  className="absolute left-0 top-0 h-full w-px origin-top scale-y-0 bg-gold-gradient transition-transform duration-500 ease-brand group-hover:scale-y-100"
-                />
-                <div className="flex gap-5 py-7 pl-0 transition-[padding] duration-500 ease-brand group-hover:pl-5 sm:gap-6">
-                  <span
-                    aria-hidden="true"
-                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/10 transition-colors duration-300 group-hover:bg-gold/10 group-hover:ring-gold/30"
-                  >
-                    <Icon className="h-5 w-5 text-gold-light" strokeWidth={1.5} />
-                  </span>
-
-                  <div>
-                    <h3 className="text-title-lg font-semibold text-sheet-1">{title}</h3>
-                    <p className="mt-2 max-w-measure text-body-sm text-sheet-3">{description}</p>
-                  </div>
-
-                  <span
-                    aria-hidden="true"
-                    className="ml-auto hidden self-center font-display text-body-sm tabular-nums text-white/50 sm:block"
-                  >
+                <div className="grid gap-3 py-7 md:grid-cols-[4rem_minmax(0,1fr)_minmax(0,1.1fr)] md:items-baseline md:gap-8">
+                  <span className="lc-index text-title-lg text-gold md:text-display-sm">
                     {String(index + 1).padStart(2, '0')}
                   </span>
+
+                  <h3 className="flex items-start gap-3 text-display-sm text-sheet-1">
+                    <Icon
+                      className="mt-1 h-5 w-5 flex-shrink-0 text-gold-light md:hidden"
+                      strokeWidth={1.5}
+                      aria-hidden="true"
+                    />
+                    {title}
+                  </h3>
+
+                  <p className="max-w-measure text-body-sm text-sheet-3">{description}</p>
                 </div>
               </Reveal>
             ))}
           </ul>
         </div>
+
+        <Reveal delay={120} className="mt-12">
+          <Button toId="contact-form-section" className="rounded-full">
+            Kostenlose Analyse anfordern
+          </Button>
+        </Reveal>
       </Container>
     </section>
   );

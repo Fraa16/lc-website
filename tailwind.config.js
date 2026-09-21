@@ -4,15 +4,23 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"Inter Tight"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        /* Outfit is the warm geometric display face; Inter carries body
+           copy and UI, where its larger x-height reads better small. */
+        display: ['Outfit', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
 
       colors: {
+        /* Four steps of one hue, each a touch warmer than a pure blue-navy,
+           so panels lift off the ground instead of sitting flat on it. */
         navy: {
           DEFAULT: '#000022',
-          raised: '#06062c',
-          overlay: '#0a0a38',
+          1: '#07061f',
+          2: '#0c0b2e',
+          3: '#14123f',
+          4: '#1e1b52',
+          raised: '#0c0b2e',
+          overlay: '#14123f',
         },
         cream: {
           DEFAULT: '#F4F3EE',
@@ -21,6 +29,7 @@ export default {
         gold: {
           DEFAULT: '#B68F40',
           light: '#DCC383',
+          deep: '#8a6b2e',
         },
         paper: '#ffffff',
         'footer-blue': '#dfe6f0',
@@ -50,7 +59,9 @@ export default {
          ends up with smaller headlines than mobile. */
       fontSize: {
         eyebrow: ['0.75rem', { lineHeight: '1', letterSpacing: '0.14em', fontWeight: '600' }],
-        'display-xl': ['clamp(2.5rem, 1.55rem + 3.8vw, 4.5rem)', { lineHeight: '1.04', letterSpacing: '-0.032em' }],
+        meta: ['0.6875rem', { lineHeight: '1', letterSpacing: '0.16em', fontWeight: '600' }],
+        'display-2xl': ['clamp(2.5rem, 1.7rem + 3.6vw, 4.75rem)', { lineHeight: '1.0', letterSpacing: '-0.034em' }],
+        'display-xl': ['clamp(2.5rem, 1.55rem + 3.8vw, 4.5rem)', { lineHeight: '1.03', letterSpacing: '-0.032em' }],
         'display-lg': ['clamp(2.125rem, 1.5rem + 2.6vw, 3.5rem)', { lineHeight: '1.08', letterSpacing: '-0.028em' }],
         'display-md': ['clamp(1.75rem, 1.35rem + 1.7vw, 2.625rem)', { lineHeight: '1.12', letterSpacing: '-0.024em' }],
         'display-sm': ['clamp(1.375rem, 1.2rem + 0.75vw, 1.75rem)', { lineHeight: '1.2', letterSpacing: '-0.018em' }],

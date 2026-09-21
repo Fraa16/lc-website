@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
 import Container from './ui/Container';
-import Eyebrow from './ui/Eyebrow';
+import SectionHead from './ui/SectionHead';
 import Reveal from './ui/Reveal';
 
 const consequences = [
@@ -46,21 +46,11 @@ export default function ConsequencesSection() {
   return (
     <section id="consequences-section" className="bg-navy py-section">
       <Container>
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
-          <div>
-            <Reveal>
-              <Eyebrow>Wenn Unternehmen nicht handeln …</Eyebrow>
-            </Reveal>
-            <Reveal delay={80} as="h2" className="mt-6 max-w-[18ch] text-display-md text-sheet-1">
-              Stillstand wird teuer. Vor allem für Unternehmen.
-            </Reveal>
-          </div>
-
-          <Reveal delay={140} as="p" className="max-w-measure text-body-lg text-sheet-2 lg:pb-2">
-            Fehlende Struktur in Gesundheits- und Vorsorgeleistungen führt zu
-            messbaren Nachteilen – für das Unternehmen und das gesamte Team.
-          </Reveal>
-        </div>
+        <SectionHead
+          eyebrow="Wenn Unternehmen nicht handeln …"
+          title="Stillstand wird teuer. Vor allem für Unternehmen."
+          aside="Fehlende Struktur in Gesundheits- und Vorsorgeleistungen führt zu messbaren Nachteilen – für das Unternehmen und das gesamte Team."
+        />
 
         <ul className="mt-14 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:gap-8">
           {consequences.map((card, index) => {
@@ -70,13 +60,13 @@ export default function ConsequencesSection() {
             return (
               <Reveal key={card.headline} as="li" delay={index * 90}>
                 <article
-                  className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-navy-raised transition-[border-color,box-shadow,transform] duration-300 ease-brand ${
+                  className={`group flex h-full flex-col overflow-hidden rounded-3xl bg-navy-2 ring-1 ring-inset transition-[box-shadow,transform,--tw-ring-color] duration-300 ease-brand ${
                     isOpen
-                      ? 'border-gold/40 lc-shadow-dark-2'
-                      : 'border-white/10 hover:-translate-y-1 hover:border-gold/30 hover:lc-shadow-dark-2'
+                      ? 'ring-gold/40 lc-shadow-dark-2'
+                      : 'ring-white/10 hover:-translate-y-1 hover:ring-gold/30 hover:lc-shadow-dark-2'
                   }`}
                 >
-                  <div className="relative h-44 overflow-hidden md:h-48">
+                  <div className="relative m-3 h-44 overflow-hidden rounded-2xl md:h-48">
                     <img
                       src={card.image}
                       alt=""
@@ -85,16 +75,20 @@ export default function ConsequencesSection() {
                       decoding="async"
                       width={800}
                       height={534}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-brand"
+                      className="h-full w-full object-cover transition-transform duration-700 ease-brand group-hover:scale-105"
                     />
                     <div
                       aria-hidden="true"
-                      className="absolute inset-0 bg-gradient-to-b from-navy/20 via-navy/55 to-navy-raised"
+                      className="absolute inset-0 bg-gradient-to-b from-navy/25 via-navy/45 to-navy/80"
                     />
+                    {/* Floating index pill, as in the reference's cards. */}
+                    <span className="lc-index absolute left-3 top-3 rounded-full bg-navy/80 px-3 py-1.5 text-meta text-gold-light backdrop-blur-md">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
                   </div>
 
-                  <div className="flex flex-1 flex-col p-6 md:p-7">
-                    <h3 className="text-title-lg font-bold text-sheet-1">{card.headline}</h3>
+                  <div className="flex flex-1 flex-col px-6 pb-7 pt-4 md:px-7">
+                    <h3 className="text-display-sm text-sheet-1">{card.headline}</h3>
 
                     <p className="mt-3 text-body-sm text-sheet-3">{card.text}</p>
 
@@ -115,19 +109,19 @@ export default function ConsequencesSection() {
                       onClick={() => setOpenIndex(isOpen ? null : index)}
                       aria-expanded={isOpen}
                       aria-controls={panelId}
-                      className="group/btn -my-2 mt-3 inline-flex min-h-[2.75rem] items-center gap-2 self-start rounded-lg py-2 text-body-sm font-medium text-gold-light transition-colors duration-200 hover:text-gold"
+                      className="mt-5 flex min-h-[2.75rem] w-full items-center justify-between gap-4 border-t border-white/10 pt-5 text-meta uppercase text-sheet-2 transition-colors duration-200 hover:text-gold-light"
                     >
+                      {isOpen ? 'weniger anzeigen' : 'mehr dazu'}
                       <span
                         aria-hidden="true"
-                        className="flex h-6 w-6 items-center justify-center rounded-full border border-gold/30 transition-colors duration-200 group-hover/btn:border-gold/60 group-hover/btn:bg-gold/10"
+                        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-white/20 text-gold-light transition-colors duration-300 ease-brand group-hover:border-gold group-hover:bg-gold group-hover:text-navy"
                       >
                         {isOpen ? (
-                          <Minus className="h-3 w-3" strokeWidth={2} />
+                          <Minus className="h-4 w-4" strokeWidth={2} />
                         ) : (
-                          <Plus className="h-3 w-3" strokeWidth={2} />
+                          <Plus className="h-4 w-4" strokeWidth={2} />
                         )}
                       </span>
-                      {isOpen ? 'weniger anzeigen' : 'mehr dazu'}
                     </button>
                   </div>
                 </article>

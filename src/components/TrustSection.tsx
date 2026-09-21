@@ -1,9 +1,8 @@
 import { Shield, TrendingUp, Award, FileCheck, Users, Headphones } from 'lucide-react';
 import Container from './ui/Container';
 import Button from './ui/Button';
-import Eyebrow from './ui/Eyebrow';
+import SectionHead from './ui/SectionHead';
 import Reveal from './ui/Reveal';
-import { cx } from '../lib/cx';
 
 const trustCards = [
   {
@@ -44,77 +43,50 @@ const trustCards = [
   },
 ];
 
-/* Bento spans: a lead tile and a full-width closer break the six-identical-
-   boxes grid without changing a word of the content. */
-const spans = [
-  'lg:col-span-2',
-  '',
-  '',
-  '',
-  '',
-  'lg:col-span-3',
-];
-
 export default function TrustSection() {
   return (
-    <section id="vorteile" className="on-light bg-cream py-section">
+    <section id="vorteile" className="bg-navy-1 py-section">
       <Container>
-        <div className="mx-auto max-w-[52rem] text-center">
-          <Reveal>
-            <Eyebrow tone="light">Ihre Vorteile auf einen Blick</Eyebrow>
-          </Reveal>
-
-          {/* Weight contrast instead of gold-gradient text: the original ramp
-              measured 1.55–2.7:1 on cream, failing AA even at display sizes. */}
-          <Reveal delay={80} className="mt-6">
-            <h2 className="text-display-lg text-ink-1">
-              <span className="block font-medium text-ink-3">Struktur, die entlastet.</span>
+        <SectionHead
+          eyebrow="Ihre Vorteile auf einen Blick"
+          title={
+            <>
+              <span className="block text-sheet-3">Struktur, die entlastet.</span>
               <span className="block">Expertise, die wirklich weiterhilft.</span>
-            </h2>
-          </Reveal>
+            </>
+          }
+          aside="Wenn ein Benefitsystem funktionieren soll, braucht es Klarheit, einfache Abläufe und jemanden, der Sie sicher durch den Prozess führt. Genau das liefern wir – maßgeschneidert, verständlich und mit Blick auf Ihren Unternehmensalltag."
+        />
 
-          <Reveal delay={160} as="p" className="mx-auto mt-6 max-w-measure text-body-lg text-ink-2">
-            Wenn ein Benefitsystem funktionieren soll, braucht es Klarheit,
-            einfache Abläufe und jemanden, der Sie sicher durch den Prozess
-            führt. Genau das liefern wir – maßgeschneidert, verständlich und mit
-            Blick auf Ihren Unternehmensalltag.
-          </Reveal>
-        </div>
-
-        <ul className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+        <ul className="mt-16 grid grid-cols-1 gap-x-0 gap-y-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-3">
           {trustCards.map(({ icon: Icon, title, description }, index) => (
             <Reveal
               key={title}
               as="li"
               delay={index * 70}
-              className={cx('h-full', spans[index])}
+              className="group sm:[&:nth-child(2n)]:border-l sm:[&:nth-child(2n)]:border-white/10 sm:[&:nth-child(2n)]:pl-8 lg:!border-l lg:border-white/10 lg:!pl-8 lg:pr-4 lg:[&:nth-child(3n+1)]:!border-l-0 lg:[&:nth-child(3n+1)]:!pl-0"
             >
-              <article
-                className={cx(
-                  'group flex h-full flex-col rounded-2xl border border-navy/10 bg-paper p-7 transition-[transform,box-shadow,border-color] duration-300 ease-brand hover:-translate-y-1 hover:border-navy/15 hover:lc-shadow-3 lg:p-8',
-                  // Wide tiles centre their content: paired with a taller
-                  // neighbour they would otherwise sit in a pool ofdead space.
-                  spans[index] && 'lg:flex-row lg:items-center lg:gap-8'
-                )}
-              >
-                <span
-                  aria-hidden="true"
-                  className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-navy transition-transform duration-300 ease-brand group-hover:scale-105"
-                >
-                  <Icon className="h-5 w-5 text-gold-light" strokeWidth={1.5} />
+              <div className="flex items-center justify-between gap-4">
+                <span className="lc-index text-body-lg text-gold">
+                  {String(index + 1).padStart(2, '0')}
                 </span>
+                <Icon
+                  className="h-5 w-5 flex-shrink-0 text-sheet-3 transition-colors duration-300 group-hover:text-gold-light"
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                />
+              </div>
 
-                <div className={cx('mt-6', spans[index] && 'lg:mt-0')}>
-                  <h3 className="text-title-lg font-semibold text-ink-1">{title}</h3>
-                  <p className="mt-2.5 max-w-measure text-body-sm text-ink-2">{description}</p>
-                </div>
-              </article>
+              <h3 className="mt-7 text-title-lg font-semibold text-sheet-1">{title}</h3>
+              <p className="mt-3 max-w-measure text-body-sm text-sheet-3">{description}</p>
             </Reveal>
           ))}
         </ul>
 
-        <Reveal delay={200} className="mt-12 text-center">
-          <Button toId="contact-form-section">Jetzt Benefit-Potential prüfen lassen</Button>
+        <Reveal delay={180} className="mt-14">
+          <Button toId="contact-form-section" className="rounded-full">
+            Jetzt Benefit-Potential prüfen lassen
+          </Button>
         </Reveal>
       </Container>
     </section>

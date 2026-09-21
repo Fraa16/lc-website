@@ -16,10 +16,23 @@
     --gold: 182 143 64;
     --gold-light: 220 195 131;
 
+    /* --- Navy ramp -------------------------------------------------------
+       The single most important addition. A dark page needs three or four
+       steps of one hue so panels can visibly lift off the ground; the old
+       build had #000022 and #05052F, barely a step apart, so every "card"
+       read as flat. Each step carries a touch more red than a pure blue-navy
+       would, which keeps the dark field from going cold and clinical next to
+       the gold. Corporate #000022 stays the ground, untouched. */
+    --navy-0: #000022;   /* page ground — corporate */
+    --navy-1: #07061f;   /* subtle band, alternating section */
+    --navy-2: #0c0b2e;   /* raised panel */
+    --navy-3: #14123f;   /* nested panel, row hover */
+    --navy-4: #1e1b52;   /* strokes, active row */
+
     /* --- Surfaces -------------------------------------------------------- */
-    --surface-ground: rgb(var(--navy));
-    --surface-raised: #06062c;        /* card on navy */
-    --surface-overlay: #0a0a38;       /* hover / nested card on navy */
+    --surface-ground: var(--navy-0);
+    --surface-raised: var(--navy-2);
+    --surface-overlay: var(--navy-3);
     --surface-paper: rgb(var(--cream));
     --surface-card: #ffffff;
     --surface-sunken: #eceae2;        /* cream, one step down */
@@ -46,6 +59,7 @@
        icon fills — never small text.                                        */
     --accent: rgb(var(--gold));
     --accent-soft: rgb(var(--gold-light));
+    --accent-deep: #8a6b2e;           /* gold one step down, for strokes */
     --accent-wash: rgba(var(--gold) / 0.10);
     --accent-line: rgba(var(--gold) / 0.28);
     --accent-gradient: linear-gradient(100deg, rgb(var(--gold)) 0%, rgb(var(--gold-light)) 100%);
@@ -73,7 +87,7 @@
     --gutter: clamp(1.25rem, 4vw, 2.5rem);
     --section-y: clamp(4.5rem, 2.5rem + 7vw, 8.5rem);
     --section-y-tight: clamp(3.5rem, 2rem + 5vw, 6rem);
-    --header-h: 4.5rem;
+    --header-h: 5rem;
     /* How far the closing CTA card sits over the footer. */
     --overlap: clamp(3.5rem, 8vw, 7rem);
 
@@ -109,7 +123,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter Tight', Inter, ui-sans-serif, system-ui, sans-serif;
+    font-family: Outfit, Inter, ui-sans-serif, system-ui, sans-serif;
     font-weight: 700;
     /* Optical tracking: display type needs negative tracking to look set
        rather than typed. This is the single biggest "expensive" tell. */
@@ -238,6 +252,38 @@
     color: transparent;
   }
 
+  /* Numerals used as an index (01, 02, …) must not reflow between weights. */
+  .lc-index {
+    font-family: Outfit, sans-serif;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* Row that lights up on hover, as in the reference's service table. */
+  .lc-row {
+    position: relative;
+    transition: background-color 320ms var(--ease);
+  }
+
+  .lc-row::before {
+    content: '';
+    position: absolute;
+    inset: 0 calc(var(--gutter) * -0.5);
+    border-radius: 0.75rem;
+    background: var(--navy-3);
+    opacity: 0;
+    transition: opacity 320ms var(--ease);
+    pointer-events: none;
+  }
+
+  .lc-row:hover::before {
+    opacity: 1;
+  }
+
+  .lc-row > * {
+    position: relative;
+  }
+
   /* Native select arrow is inconsistent across platforms. */
   .lc-select {
     appearance: none;
@@ -245,6 +291,11 @@
     background-repeat: no-repeat;
     background-position: right 1rem center;
     padding-right: 2.75rem;
+  }
+
+  /* Same control on a light card needs a dark chevron. */
+  .lc-select-light {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23000022' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   }
 }
 

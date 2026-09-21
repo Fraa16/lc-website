@@ -18,23 +18,15 @@ function App() {
       <StructuredData />
       <NavBar />
 
+      {/* One navy ground throughout. Sections alternate between navy-0 and
+          navy-1 for rhythm, and lift content onto navy-2 panels — the light
+          card inside the contact form is the page's single bright surface. */}
       <main id="hauptinhalt" className="bg-navy">
-        {/* Dark half — problem and urgency. */}
         <HeroSection />
         <ProblemSection />
         <MiniCTASection />
         <ConsequencesSection />
         <ContactFormSection />
-
-        {/* Navy to cream. Previously a 240–400px empty div whose only job was
-            to fade between two colours; at desktop width that is a full
-            screen of nothing directly after the primary conversion point. */}
-        <div
-          aria-hidden="true"
-          className="h-[clamp(4rem,9vw,7rem)] bg-gradient-to-b from-navy via-navy/60 to-cream"
-        />
-
-        {/* Light half — solution and proof. */}
         <BenefitSystemSection />
         <ImplementationSection />
         <TrustSection />

@@ -1,6 +1,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
 import Container from './ui/Container';
+import Eyebrow from './ui/Eyebrow';
 import Reveal from './ui/Reveal';
 import { Honeypot, SelectField, TextField } from './ui/Field';
 import { GENERIC_SUBMIT_ERROR, isValidEmail, orNull, submitContact } from '../lib/contact';
@@ -95,23 +96,47 @@ export default function ContactFormSection() {
 
   return (
     <section id="contact-form-section" className="bg-navy py-section">
-      <Container size="prose">
-        <Reveal className="text-center">
-          <h2 className="text-display-md text-sheet-1">
-            Jetzt kostenlose Benefit-Analyse vereinbaren
-          </h2>
-          <p className="mx-auto mt-4 max-w-measure-sm text-body-lg text-sheet-2">
-            Wir kontaktieren Sie innerhalb von 24 Stunden
-          </p>
-        </Reveal>
+      <Container>
+        <Reveal>
+          <div className="grid overflow-hidden rounded-3xl bg-navy-2 ring-1 ring-inset ring-white/8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            {/* --- Pitch ------------------------------------------------ */}
+            <div className="relative flex flex-col justify-center px-7 py-10 sm:px-10 lg:px-12 lg:py-14">
+              <div
+                aria-hidden="true"
+                className="absolute -left-20 -top-20 h-56 w-56 rounded-full bg-gold/10 blur-3xl"
+              />
+              <div className="relative">
+                <Eyebrow>Kostenlose Benefit-Analyse</Eyebrow>
 
-        <Reveal delay={120} className="mt-10">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-navy-raised p-6 sm:p-9 lc-shadow-dark-2">
-            <div
-              aria-hidden="true"
-              className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-gold-light/50 to-transparent"
-            />
+                <h2 className="mt-7 max-w-[18ch] text-display-sm text-sheet-1 sm:text-display-md">
+                  Jetzt kostenlose Benefit-Analyse vereinbaren
+                </h2>
 
+                <p className="mt-5 max-w-measure text-body-lg text-sheet-2">
+                  Wir kontaktieren Sie innerhalb von 24 Stunden
+                </p>
+
+                <ul className="mt-9 space-y-4 border-t border-white/10 pt-8">
+                  {[
+                    'Rechtssicher & GKV-konform',
+                    '100% digitale Verwaltung',
+                    'Schlanke Implementierung ohne Mehraufwand für HR',
+                  ].map((item, i) => (
+                    <li key={item} className="flex items-start gap-4">
+                      <span className="lc-index mt-0.5 flex-shrink-0 text-body-sm text-gold">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span className="text-body-sm text-sheet-2">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* --- Form -------------------------------------------------
+                The one bright surface on the page, so the primary
+                conversion point is also the highest-contrast thing on it. */}
+            <div className="bg-cream px-6 py-9 sm:px-9 sm:py-11 lg:px-12 on-light">
             {isDone ? (
               /* A persistent confirmation panel. The old build showed a
                  banner that removed itself after five seconds, so a visitor
@@ -120,15 +145,15 @@ export default function ContactFormSection() {
                 ref={confirmationRef}
                 tabIndex={-1}
                 role="status"
-                className="flex flex-col items-center py-8 text-center focus:outline-none"
+                className="flex flex-col items-center py-10 text-center focus:outline-none"
               >
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-success/15 ring-1 ring-inset ring-success/30">
-                  <CheckCircle2 className="h-7 w-7 text-success" strokeWidth={1.75} aria-hidden="true" />
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-success-ink/10 ring-1 ring-inset ring-success-ink/25">
+                  <CheckCircle2 className="h-7 w-7 text-success-ink" strokeWidth={1.75} aria-hidden="true" />
                 </span>
-                <p className="mt-5 font-display text-display-sm text-sheet-1">
+                <p className="mt-5 font-display text-display-sm text-ink-1">
                   Vielen Dank! Ihre Anfrage wurde erfolgreich übermittelt.
                 </p>
-                <p className="mt-3 max-w-measure-sm text-body-sm text-sheet-3">
+                <p className="mt-3 max-w-measure-sm text-body-sm text-ink-2">
                   Wir kontaktieren Sie innerhalb von 24 Stunden
                 </p>
               </div>
@@ -138,6 +163,7 @@ export default function ContactFormSection() {
 
                 <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
                   <TextField
+                    tone="light"
                     id="contact-vorname"
                     name="vorname"
                     label="Vorname"
@@ -149,6 +175,7 @@ export default function ContactFormSection() {
                     onChange={(event) => setField('vorname')(event.target.value)}
                   />
                   <TextField
+                    tone="light"
                     id="contact-nachname"
                     name="nachname"
                     label="Nachname"
@@ -160,6 +187,7 @@ export default function ContactFormSection() {
                     onChange={(event) => setField('nachname')(event.target.value)}
                   />
                   <TextField
+                    tone="light"
                     id="contact-email"
                     name="email"
                     type="email"
@@ -173,6 +201,7 @@ export default function ContactFormSection() {
                     onChange={(event) => setField('email')(event.target.value)}
                   />
                   <TextField
+                    tone="light"
                     id="contact-telefon"
                     name="telefon"
                     type="tel"
@@ -184,6 +213,7 @@ export default function ContactFormSection() {
                     onChange={(event) => setField('telefon')(event.target.value)}
                   />
                   <TextField
+                    tone="light"
                     id="contact-firma"
                     name="firma"
                     label="Firma"
@@ -195,6 +225,7 @@ export default function ContactFormSection() {
                     onChange={(event) => setField('firma')(event.target.value)}
                   />
                   <SelectField
+                    tone="light"
                     id="contact-mitarbeiteranzahl"
                     name="mitarbeiteranzahl"
                     label="Mitarbeiteranzahl"
@@ -208,7 +239,7 @@ export default function ContactFormSection() {
                 {submitError && (
                   <p
                     role="alert"
-                    className="mt-5 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-body-sm text-danger"
+                    className="mt-5 rounded-xl border border-danger-ink/25 bg-danger-ink/8 px-4 py-3 text-body-sm text-danger-ink"
                   >
                     {submitError}
                   </p>
@@ -225,12 +256,13 @@ export default function ContactFormSection() {
                   {isSubmitting ? 'Wird gesendet...' : 'Jetzt kostenlose Analyse anfragen'}
                 </button>
 
-                <p className="mt-4 flex items-center justify-center gap-2 text-caption text-sheet-3">
+                <p className="mt-4 flex items-center justify-center gap-2 text-caption text-ink-3">
                   <ShieldCheck className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   Mit dem Absenden akzeptieren Sie unsere Datenschutzbestimmungen
                 </p>
               </form>
             )}
+            </div>
           </div>
         </Reveal>
       </Container>
