@@ -1,4 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Menu, X } from 'lucide-react';
+import lcLogo from '../images/lc-logo-lang-420.webp';
+import { useScrolled } from '../hooks/useScrolled';
+import { useScrollSpy } from '../hooks/useScrollSpy';
+import { scrollToId } from '../lib/motion';
+import { cx } from '../lib/cx';
 
 const navItems = [
   { label: 'Herausforderung', id: 'problem-section' },
@@ -7,83 +13,214 @@ const navItems = [
   { label: 'FAQ', id: 'faq-section' },
 ];
 
+const navIds = navItems.map((item) => item.id);
+
 export default function NavBar() {
-  const [visible, setVisible] = useState(false);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const scrolled = useScrolled(80);
+  // The hero is a full viewport, so past ~70vh the logo has left the screen
+  // and the header can pick it up without the two appearing at once.
+  const pastHero = useScrolled(typeof window === 'undefined' ? 600 : window.innerHeight * 0.7);
+  const activeId = useScrollSpy(navIds);
 
-  useEffect(() => {
-    const onScroll = () => {
-      setVisible(window.scrollY > 120);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    toggleRef.current?.focus();
   }, []);
 
-  useEffect(() => {
-    const ids = navItems.map((n) => n.id);
-    const observers: IntersectionObserver[] = [];
+  const go = useCallback((id: string) => {
+    setMenuOpen(false);
+    scrollToId(id);
+  }, []);
 
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setActiveId(id);
-        },
-        { rootMargin: '-40% 0px -50% 0px' }
+  // Lock the page behind the mobile sheet, and keep keyboard focus inside it.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const { overflow, paddingRight } = document.body.style;
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !sheetRef.current) return;
+
+      const focusables = sheetRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled])'
       );
-      obs.observe(el);
-      observers.push(obs);
-    });
+      if (focusables.length === 0) return;
 
-    return () => observers.forEach((obs) => obs.disconnect());
-  }, []);
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
 
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    // Move focus into the sheet so the next Tab stays in context.
+    sheetRef.current?.querySelector<HTMLElement>('a[href], button')?.focus();
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = overflow;
+      document.body.style.paddingRight = paddingRight;
+    };
+  }, [menuOpen, closeMenu]);
 
   return (
-    <nav
-      aria-label="Seitennavigation"
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
-        visible
-          ? 'opacity-100 translate-y-0 pointer-events-auto'
-          : 'opacity-0 -translate-y-3 pointer-events-none'
-      }`}
-    >
-      <div className="flex items-center gap-1.5 px-2 py-2 rounded-full bg-[#000022]/90 backdrop-blur-md border border-white/10 shadow-2xl shadow-black/40">
-        {navItems.map((item) => {
-          const isActive = activeId === item.id;
-          return (
+    <>
+      <a
+        href="#hauptinhalt"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-gold focus:px-5 focus:py-3 focus:text-body-sm focus:font-semibold focus:text-navy"
+      >
+        Zum Hauptinhalt springen
+      </a>
+
+      <header
+        className={cx(
+          'fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter,box-shadow] duration-500 ease-brand',
+          scrolled
+            ? 'border-b border-white/10 bg-navy/85 lc-shadow-dark-1 backdrop-blur-xl supports-[backdrop-filter]:bg-navy/70'
+            : 'border-b border-transparent bg-transparent'
+        )}
+      >
+        <div className="lc-container lc-container-wide flex h-header items-center justify-between gap-6">
+          {/* Logo — held back until the hero's own logo is out of view. */}
+          <a
+            href="#hero"
+            onClick={(event) => {
+              event.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={cx(
+              // -my-2/py-2 grows the hit area to 40px without moving the mark.
+              'flex items-center -my-2 py-2 transition-all duration-500 ease-brand',
+              pastHero
+                ? 'translate-y-0 opacity-100'
+                : 'pointer-events-none -translate-y-1 opacity-0'
+            )}
+            aria-label="Leibinn Consulting — zum Seitenanfang"
+          >
+            <img
+              src={lcLogo}
+              alt="Leibinn Consulting"
+              width={1761}
+              height={254}
+              className="h-6 w-auto md:h-7"
+            />
+          </a>
+
+          {/* Desktop navigation */}
+          <nav aria-label="Hauptnavigation" className="hidden items-center gap-1 lg:flex">
+            {navItems.map((item) => {
+              const isActive = activeId === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => go(item.id)}
+                  aria-current={isActive ? 'true' : undefined}
+                  className={cx(
+                    'relative rounded-lg px-4 py-2 text-body-sm font-medium transition-colors duration-200',
+                    isActive ? 'text-sheet-1' : 'text-sheet-3 hover:text-sheet-1'
+                  )}
+                >
+                  {item.label}
+                  <span
+                    aria-hidden="true"
+                    className={cx(
+                      'absolute inset-x-4 bottom-1 h-px origin-left rounded-full bg-gold-gradient transition-transform duration-300 ease-brand',
+                      isActive ? 'scale-x-100' : 'scale-x-0'
+                    )}
+                  />
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="flex items-center gap-2">
             <button
-              key={item.id}
-              onClick={() => scrollTo(item.id)}
-              className={`relative px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-                isActive
-                  ? 'text-[#000022]'
-                  : 'text-[#F4F3EE]/70 hover:text-[#F4F3EE]'
-              }`}
+              type="button"
+              onClick={() => go('contact-form-section')}
+              className="hidden rounded-lg bg-gold-gradient bg-[length:200%_100%] bg-left px-5 py-2.5 text-body-sm font-semibold text-navy shadow-[0_2px_10px_rgb(182_143_64_/_0.25)] transition-[background-position,transform,box-shadow] duration-300 ease-brand hover:bg-right hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgb(182_143_64_/_0.35)] sm:inline-flex"
             >
-              {isActive && (
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-[#B68F40] to-[#DCC383]" />
-              )}
-              <span className="relative z-10">{item.label}</span>
+              Erstgespräch anfragen
             </button>
-          );
-        })}
 
-        <div className="w-px h-5 bg-white/15 mx-1" aria-hidden="true" />
+            <button
+              ref={toggleRef}
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
+              aria-label={menuOpen ? 'Menü schließen' : 'Menü öffnen'}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/12 text-sheet-1 transition-colors duration-200 hover:bg-white/[0.06] lg:hidden"
+            >
+              {menuOpen ? (
+                <X className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+              ) : (
+                <Menu className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
 
-        <button
-          onClick={() => scrollTo('contact-form-section')}
-          className="relative overflow-hidden flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold text-[#000022] bg-gradient-to-r from-[#B68F40] to-[#DCC383] transition-all duration-200 hover:shadow-lg hover:shadow-[#B68F40]/30 hover:scale-[1.04] active:scale-[0.97] whitespace-nowrap"
+      {/* Mobile sheet — the previous build had no mobile navigation at all;
+          the desktop pill simply overflowed the viewport below ~700px.
+
+          Rendered conditionally rather than toggled with the `hidden`
+          attribute: a class-based `display: flex` outranks the UA stylesheet's
+          `[hidden] { display: none }`, so the sheet would stay on screen. It
+          also keeps the links out of the tab order while closed. */}
+      {menuOpen && (
+        <div
+          id="mobile-menu"
+          ref={sheetRef}
+          className="fixed inset-0 z-40 flex animate-fade-in flex-col bg-navy/[0.98] pt-header backdrop-blur-xl lg:hidden"
         >
-          <span className="absolute inset-0 -translate-x-full hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
-          Erstgespräch anfragen
-        </button>
-      </div>
-    </nav>
+          <nav
+            aria-label="Hauptnavigation (mobil)"
+            className="lc-container flex flex-1 flex-col justify-center gap-1 pb-12"
+          >
+            {navItems.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => go(item.id)}
+                style={{ animationDelay: `${index * 45}ms` }}
+                className="animate-sheet-in border-b border-white/10 py-5 text-left font-display text-display-sm font-semibold text-sheet-1 transition-colors duration-200 hover:text-gold-light"
+              >
+                {item.label}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => go('contact-form-section')}
+              style={{ animationDelay: `${navItems.length * 45}ms` }}
+              className="mt-8 animate-sheet-in rounded-xl bg-gold-gradient px-7 py-4 text-body-lg font-semibold text-navy"
+            >
+              Erstgespräch anfragen
+            </button>
+          </nav>
+        </div>
+      )}
+    </>
   );
 }

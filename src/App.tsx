@@ -9,34 +9,42 @@ import ImplementationSection from './components/ImplementationSection';
 import TrustSection from './components/TrustSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import FAQSection from './components/FAQSection';
-import FooterCTASection from './components/FooterCTASection';
+import FooterCTASection, { SiteFooter } from './components/FooterCTASection';
+import StructuredData from './components/StructuredData';
 
 function App() {
   return (
-    <div className="min-h-screen bg-[#000022]">
+    <>
+      <StructuredData />
       <NavBar />
-      <HeroSection />
-      <ProblemSection />
-      <MiniCTASection />
-      <ConsequencesSection />
-      <ContactFormSection />
 
-      {/* Transition Band: Navy to Light Cream */}
-      <div
-        className="h-[240px] md:h-[320px] lg:h-[400px]"
-        style={{
-          background: 'linear-gradient(to bottom, #000022 0%, #000022 15%, rgba(0, 0, 34, 0.8) 30%, rgba(0, 0, 34, 0.4) 45%, rgba(0, 0, 34, 0) 55%, rgba(244, 243, 238, 0.4) 70%, rgba(244, 243, 238, 0.8) 85%, #F4F3EE 100%)'
-        }}
-      />
+      <main id="hauptinhalt" className="bg-navy">
+        {/* Dark half — problem and urgency. */}
+        <HeroSection />
+        <ProblemSection />
+        <MiniCTASection />
+        <ConsequencesSection />
+        <ContactFormSection />
 
-      {/* Light Mode Sections */}
-      <BenefitSystemSection />
-      <ImplementationSection />
-      <TrustSection />
-      <TestimonialsSection />
-      <FAQSection />
-      <FooterCTASection />
-    </div>
+        {/* Navy to cream. Previously a 240–400px empty div whose only job was
+            to fade between two colours; at desktop width that is a full
+            screen of nothing directly after the primary conversion point. */}
+        <div
+          aria-hidden="true"
+          className="h-[clamp(4rem,9vw,7rem)] bg-gradient-to-b from-navy via-navy/60 to-cream"
+        />
+
+        {/* Light half — solution and proof. */}
+        <BenefitSystemSection />
+        <ImplementationSection />
+        <TrustSection />
+        <TestimonialsSection />
+        <FAQSection />
+        <FooterCTASection />
+      </main>
+
+      <SiteFooter />
+    </>
   );
 }
 

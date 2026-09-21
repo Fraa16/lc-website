@@ -1,179 +1,144 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { Check, Shield, TrendingUp, Users } from 'lucide-react';
-import lcLogo from '../images/lc-logo-lang.webp';
-import heroImage from '../images/cedrik-leibinn-hero.webp';
+import lcLogo from '../images/lc-logo-lang-420.webp';
+import heroImage from '../images/cedrik-leibinn-hero-960.webp';
+import heroImageSmall from '../images/cedrik-leibinn-hero-560.webp';
+import Container from './ui/Container';
+import Button from './ui/Button';
+import Reveal from './ui/Reveal';
+
+const benefits = [
+  'Bis zu 30% weniger Fehlzeiten durch bessere Gesundheitsleistungen',
+  'Messbar höhere Mitarbeiterbindung & stärkere Arbeitgebermarke',
+  'Schlanke Implementierung ohne Mehraufwand für HR',
+];
+
+const trustMarkers = [
+  { icon: Shield, label: 'Rechtssicher & GKV-konform' },
+  { icon: TrendingUp, label: 'Ø 28% weniger Fehlzeiten' },
+  { icon: Users, label: '100% digitale Verwaltung' },
+];
 
 export default function HeroSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    e.preventDefault();
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  const benefits = [
-    'Bis zu 30% weniger Fehlzeiten durch bessere Gesundheitsleistungen',
-    'Messbar höhere Mitarbeiterbindung & stärkere Arbeitgebermarke',
-    'Schlanke Implementierung ohne Mehraufwand für HR'
-  ];
-
   return (
     <section
-      ref={sectionRef}
       id="hero"
-      className="bg-[#000022] min-h-screen flex items-center py-16 md:py-20 lg:py-24"
+      className="lc-vignette relative overflow-hidden bg-navy pt-header"
     >
-      <div className="mx-auto max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px] px-6 sm:px-10 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-12 lg:gap-8 xl:gap-12 items-center">
-          {/* Left Column - Text Content */}
-          <div
-            className={`space-y-6 lg:space-y-8 transition-all duration-700 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            {/* Label */}
-            <div
-              className={`transition-all duration-700 delay-100 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
+      <Container size="wide" className="relative">
+        <div className="grid items-center gap-14 py-16 lg:grid-cols-12 lg:gap-12 lg:py-24 xl:gap-16">
+          {/* --- Copy ------------------------------------------------ */}
+          <div className="lg:col-span-7">
+            <Reveal>
               <img
                 src={lcLogo}
                 alt="Leibinn Consulting"
-                className="h-7 md:h-8 w-auto object-contain"
+                width={420}
+                height={61}
+                fetchPriority="high"
+                className="h-7 w-auto md:h-8"
               />
-            </div>
+            </Reveal>
 
-            {/* Main Headlines */}
-            <div className="space-y-3 lg:space-y-4">
-              <h2
-                className={`text-lg sm:text-xl lg:text-xl xl:text-2xl font-normal bg-gradient-to-r from-[#B68F40] to-[#DCC383] bg-clip-text text-transparent leading-relaxed transition-all duration-700 delay-200 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-              >
+            <Reveal delay={80} className="mt-8">
+              {/* Gradient text is kept here because both stops clear AA on
+                  navy (#B68F40 6.8:1, #DCC383 11.9:1). It is dropped on the
+                  cream sections, where the same ramp falls to 1.6–2.7:1. */}
+              <p className="lc-gradient-text max-w-measure-sm font-display text-title-lg font-medium">
                 Mehr Leistung im Team. Weniger Aufwand im Alltag.
-              </h2>
-              <h1
-                className={`text-4xl sm:text-5xl lg:text-3xl xl:text-4xl font-bold text-[#F4F3EE] leading-[1.1] transition-all duration-700 delay-300 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-              >
-                Das moderne Benefit-System für Unternehmen
-              </h1>
-            </div>
+              </p>
+            </Reveal>
 
-            {/* Subheadline */}
-            <p
-              className={`text-base sm:text-lg lg:text-lg text-[#F4F3EE]/80 leading-relaxed max-w-xl transition-all duration-700 delay-400 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
-              Wir bündeln die wirkungsvollsten Gesundheits- und Vorsorgebenefits in einem System — verwaltungsarm, steuerlich optimiert und flexibel für jedes Teammitglied nutzbar.
-            </p>
+            <Reveal delay={140} as="h1" className="mt-4 max-w-[18ch] text-display-xl text-sheet-1">
+              Das moderne Benefit-System für Unternehmen
+            </Reveal>
 
-            {/* Bullet Points */}
-            <ul className="space-y-3 lg:space-y-3.5">
+            <Reveal delay={200} as="p" className="mt-6 max-w-measure text-lead text-sheet-2">
+              Wir bündeln die wirkungsvollsten Gesundheits- und Vorsorgebenefits in
+              einem System — verwaltungsarm, steuerlich optimiert und flexibel für
+              jedes Teammitglied nutzbar.
+            </Reveal>
+
+            <ul className="mt-9 space-y-4">
               {benefits.map((benefit, index) => (
-                <li
-                  key={index}
-                  className={`flex items-start gap-3 text-[#F4F3EE] text-sm sm:text-base lg:text-lg transition-all duration-700 ${
-                    isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                  }`}
-                  style={{ transitionDelay: `${500 + index * 80}ms` }}
+                <Reveal
+                  key={benefit}
+                  as="li"
+                  delay={260 + index * 70}
+                  className="flex items-start gap-3.5 text-body-lg text-sheet-1"
                 >
-                  <Check
-                    className="w-5 h-5 lg:w-6 lg:h-6 text-[#B68F40] flex-shrink-0 mt-1"
+                  <span
                     aria-hidden="true"
-                  />
-                  <span>{benefit}</span>
-                </li>
+                    className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gold/15 ring-1 ring-inset ring-gold/30"
+                  >
+                    <Check className="h-3.5 w-3.5 text-gold-light" strokeWidth={2.5} />
+                  </span>
+                  <span className="max-w-measure">{benefit}</span>
+                </Reveal>
               ))}
             </ul>
 
-            {/* CTA Button */}
-            <div
-              className={`flex pt-2 lg:pt-4 transition-all duration-700 delay-700 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
-              <a
-                href="#contact-form-section"
-                onClick={(e) => handleScroll(e, 'contact-form-section')}
-                className="group relative inline-flex items-center justify-center px-8 py-3.5 bg-gradient-to-r from-[#B68F40] to-[#DCC383] text-[#000022] font-semibold text-base rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-out hover:shadow-2xl hover:shadow-[#B68F40]/40 hover:scale-[1.03] focus:outline-none focus:ring-4 focus:ring-[#B68F40]/50 active:scale-[0.98]"
-                aria-label="Jetzt Erstgespräch sichern"
-              >
-                {/* Hover brightness overlay */}
-                <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-300 ease-out pointer-events-none" />
-
-                {/* Shimmer effect */}
-                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
-
-                {/* Button text with subtle letter-spacing on hover */}
-                <span className="relative z-10 transition-all duration-300 ease-out group-hover:tracking-wide pointer-events-none">
-                  Jetzt Erstgespräch sichern
-                </span>
-              </a>
-            </div>
+            <Reveal delay={500} className="mt-10">
+              <Button toId="contact-form-section" size="lg">
+                Jetzt Erstgespräch sichern
+              </Button>
+            </Reveal>
           </div>
 
-          {/* Right Column - Image */}
-          <div
-            className={`relative transition-all duration-700 delay-500 lg:max-w-md lg:ml-auto pb-8 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <div className="relative rounded-xl lg:rounded-2xl overflow-visible shadow-2xl">
-              <img
-                src={heroImage}
-                alt="Modernes Büro-Team im Gespräch über Mitarbeiterbenefits und Gesundheitsvorsorge"
-                className="w-full h-full object-cover aspect-[4/3] lg:aspect-[3/4] rounded-xl lg:rounded-2xl"
+          {/* --- Portrait --------------------------------------------- */}
+          <Reveal delay={260} className="lg:col-span-5">
+            <div className="relative mx-auto max-w-sm lg:max-w-none">
+              {/* Offset rule behind the photo — a passe-partout edge that
+                  gives the image a frame without a heavy container. */}
+              <div
+                aria-hidden="true"
+                className="absolute -right-3 -top-3 hidden h-full w-full rounded-3xl border border-gold/25 sm:block"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute -inset-8 -z-10 rounded-full bg-gold/10 blur-3xl"
               />
 
-              {/* Trust badges — stacked vertically, partially inside bottom-left */}
-              <div className="absolute -bottom-4 left-4 flex flex-col gap-2">
-                {[
-                  { icon: Shield, label: 'Rechtssicher & GKV-konform' },
-                  { icon: TrendingUp, label: 'Ø 28% weniger Fehlzeiten' },
-                  { icon: Users, label: '100% digitale Verwaltung' },
-                ].map(({ icon: Icon, label }) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#000022]/90 backdrop-blur-sm border border-[#DCC383]/25 shadow-xl shadow-black/40 text-[#F4F3EE] w-fit"
-                  >
-                    <Icon className="w-3.5 h-3.5 text-[#DCC383] flex-shrink-0" strokeWidth={1.75} />
-                    <span className="text-[11px] font-medium leading-none">{label}</span>
-                  </div>
-                ))}
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 lc-shadow-dark-3">
+                <img
+                  src={heroImage}
+                  srcSet={`${heroImageSmall} 560w, ${heroImage} 960w`}
+                  sizes="(min-width: 1024px) 34vw, (min-width: 640px) 24rem, 88vw"
+                  alt="Cedrik Leibinn, Berater für betriebliche Benefit- und Vorsorgesysteme"
+                  width={960}
+                  height={1344}
+                  fetchPriority="high"
+                  decoding="async"
+                  className="aspect-[4/5] w-full object-cover object-top lg:aspect-[5/7]"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-navy/60 to-transparent"
+                />
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
-      </div>
+
+        {/* --- Trust strip ---------------------------------------------
+            Previously three stacked chips pinned over the photo's bottom
+            corner, where they cropped the subject and collided on small
+            screens. As a base rule they anchor the whole hero instead. */}
+        <Reveal delay={560}>
+          <ul className="grid grid-cols-1 gap-px overflow-hidden border-t border-white/10 sm:grid-cols-3">
+            {trustMarkers.map(({ icon: Icon, label }) => (
+              <li
+                key={label}
+                className="flex items-center gap-3 py-5 sm:justify-center sm:px-4 sm:[&:not(:first-child)]:border-l sm:[&:not(:first-child)]:border-white/10"
+              >
+                <Icon className="h-4 w-4 flex-shrink-0 text-gold-light" strokeWidth={1.75} aria-hidden="true" />
+                <span className="text-caption font-medium tracking-wide text-sheet-2">
+                  {label}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+      </Container>
     </section>
   );
 }

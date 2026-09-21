@@ -1,155 +1,114 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { Layers, Percent, Heart, Workflow } from 'lucide-react';
+import Container from './ui/Container';
+import Button from './ui/Button';
+import Eyebrow from './ui/Eyebrow';
+import Reveal from './ui/Reveal';
+
+const pillars = [
+  {
+    icon: Layers,
+    title: 'Klare Struktur & Transparenz',
+    description:
+      'Alle Benefits in einem strukturierten, verständlichen System — für HR, Führungskräfte und Mitarbeitende sofort nachvollziehbar.',
+  },
+  {
+    icon: Percent,
+    title: 'Steuerlich optimierte Vorteile',
+    description:
+      'Wir nutzen alle relevanten Fördermodelle und Steuervorteile, damit Leistungen maximal wirksam und budgeteffizient eingesetzt werden.',
+  },
+  {
+    icon: Heart,
+    title: 'Moderne Gesundheits- & Vorsorgeleistungen',
+    description:
+      'Ein starkes Portfolio aus Gesundheits-, Präventions- und Vorsorgebausteinen — flexibel für jedes Teammitglied nutzbar.',
+  },
+  {
+    icon: Workflow,
+    title: 'Digitale & schlanke Prozesse',
+    description:
+      'Von Anmeldung bis Abrechnung: Digitale Abläufe reduzieren den Aufwand für HR und steigern die Nutzung durch Mitarbeitende.',
+  },
+];
 
 export default function BenefitSystemSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const pillars = [
-    {
-      icon: Layers,
-      title: 'Klare Struktur & Transparenz',
-      description: 'Alle Benefits in einem strukturierten, verständlichen System — für HR, Führungskräfte und Mitarbeitende sofort nachvollziehbar.'
-    },
-    {
-      icon: Percent,
-      title: 'Steuerlich optimierte Vorteile',
-      description: 'Wir nutzen alle relevanten Fördermodelle und Steuervorteile, damit Leistungen maximal wirksam und budgeteffizient eingesetzt werden.'
-    },
-    {
-      icon: Heart,
-      title: 'Moderne Gesundheits- & Vorsorgeleistungen',
-      description: 'Ein starkes Portfolio aus Gesundheits-, Präventions- und Vorsorgebausteinen — flexibel für jedes Teammitglied nutzbar.'
-    },
-    {
-      icon: Workflow,
-      title: 'Digitale & schlanke Prozesse',
-      description: 'Von Anmeldung bis Abrechnung: Digitale Abläufe reduzieren den Aufwand für HR und steigern die Nutzung durch Mitarbeitende.'
-    }
-  ];
-
-  const handleCTAClick = () => {
-    const contactSection = document.getElementById('contact-form-section');
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <section
-      ref={sectionRef}
-      id="benefit-system"
-      className="bg-[#F4F3EE] py-20 md:py-28"
-    >
-      <div className="mx-auto max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px] px-6 md:px-8">
-        {/* Header Area */}
-        <div className="mb-16 md:mb-20">
-          <div
-            className={`transition-all duration-700 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <span className="inline-block text-[#B68F40] text-xs md:text-sm font-medium uppercase tracking-wider mb-4">
-              Das moderne Benefit-System
-            </span>
-          </div>
+    <section id="benefit-system" className="on-light bg-cream py-section">
+      <Container>
+        <div className="max-w-measure">
+          <Reveal>
+            <Eyebrow tone="light">Das moderne Benefit-System</Eyebrow>
+          </Reveal>
 
-          <h1
-            className={`text-4xl sm:text-5xl lg:text-3xl xl:text-4xl font-bold text-[#000022] leading-tight mb-6 transition-all duration-700 delay-100 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
+          <Reveal delay={80} as="h2" className="mt-6 max-w-[18ch] text-display-lg text-ink-1">
             Ein System, das für jedes Unternehmen funktioniert.
-          </h1>
+          </Reveal>
 
-          <p
-            className={`text-base sm:text-lg lg:text-xl text-[#000022]/80 leading-relaxed max-w-4xl transition-all duration-700 delay-200 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Wir verbinden die wirkungsvollsten Gesundheits- und Vorsorgeleistungen in einem System — klar strukturiert, steuerlich optimiert und nachhaltig wirksam.
-          </p>
+          <Reveal delay={140} as="p" className="mt-6 text-lead text-ink-2">
+            Wir verbinden die wirkungsvollsten Gesundheits- und Vorsorgeleistungen
+            in einem System — klar strukturiert, steuerlich optimiert und
+            nachhaltig wirksam.
+          </Reveal>
         </div>
 
-        {/* System Pillars - 2x2 Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mb-16 md:mb-20">
-          {pillars.map((pillar, index) => {
-            const Icon = pillar.icon;
-            return (
-              <div
-                key={index}
-                className={`group relative bg-white border border-[#000022]/10 rounded-2xl lg:rounded-3xl p-8 lg:p-10 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#B68F40]/50 hover:shadow-2xl hover:shadow-[#B68F40]/10 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: `${300 + index * 120}ms` }}
-              >
-                {/* Premium Badge Line */}
-                <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-[#DCC383]/40 to-transparent"></div>
+        <ul className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-6">
+          {pillars.map(({ icon: Icon, title, description }, index) => (
+            <Reveal key={title} as="li" delay={index * 80} className="h-full">
+              <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-navy/10 bg-paper p-8 transition-[transform,box-shadow,border-color] duration-300 ease-brand hover:-translate-y-1 hover:border-navy/15 hover:lc-shadow-3 lg:p-10">
+                {/* Accent rule reveals on hover rather than sitting there
+                    permanently — the original drew it on every card at all
+                    times, which flattened the hierarchy. */}
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gold-gradient transition-transform duration-500 ease-brand group-hover:scale-x-100"
+                />
 
-                {/* Icon Container */}
-                <div className="mb-6">
-                  <div className="inline-flex items-center justify-center w-14 h-14 lg:w-16 lg:h-16 rounded-xl bg-gradient-to-br from-[#B68F40]/20 to-[#DCC383]/20 border border-[#DCC383]/30 transition-all duration-300 group-hover:border-[#DCC383]/50 group-hover:shadow-lg group-hover:shadow-[#DCC383]/20">
-                    <Icon className="w-7 h-7 lg:w-8 lg:h-8 text-[#B68F40]" strokeWidth={1.5} />
-                  </div>
+                <div className="flex items-start justify-between gap-4">
+                  {/* Navy chip with a gold glyph: 11.9:1. The previous chip
+                      was a 20%-opacity gold wash with a gold icon on white,
+                      which sits under the 3:1 non-text minimum. */}
+                  <span
+                    aria-hidden="true"
+                    className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-navy transition-transform duration-300 ease-brand group-hover:scale-105"
+                  >
+                    <Icon className="h-6 w-6 text-gold-light" strokeWidth={1.5} />
+                  </span>
+
+                  <span
+                    aria-hidden="true"
+                    className="font-display text-body-sm tabular-nums text-ink-3"
+                  >
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
                 </div>
 
-                {/* Title */}
-                <h3 className="text-xl lg:text-2xl font-bold text-[#000022] mb-4 leading-tight">
-                  {pillar.title}
-                </h3>
+                <h3 className="mt-7 text-display-sm text-ink-1">{title}</h3>
+                <p className="mt-3 text-body-sm text-ink-2">{description}</p>
+              </article>
+            </Reveal>
+          ))}
+        </ul>
 
-                {/* Description */}
-                <p className="text-sm lg:text-base text-[#000022]/80 leading-relaxed">
-                  {pillar.description}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* CTA Area */}
-        <div
-          className={`text-center max-w-3xl mx-auto transition-all duration-700 delay-500 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#000022] mb-4">
-            Bereit für ein funktionierendes Benefit-System?
-          </h3>
-
-          <p className="text-base sm:text-lg text-[#000022]/70 mb-8 leading-relaxed">
-            Wir analysieren Ihre aktuelle Situation kostenlos und zeigen konkrete Potenziale auf.
-          </p>
-
-          <button
-            onClick={handleCTAClick}
-            className="inline-flex items-center justify-center px-8 py-4 text-base lg:text-lg font-semibold text-white bg-gradient-to-r from-[#B68F40] to-[#DCC383] rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#DCC383]/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#DCC383]/50 focus:ring-offset-2 focus:ring-offset-[#F4F3EE]"
-          >
-            Jetzt kostenlose Analyse sichern
-          </button>
-        </div>
-      </div>
+        {/* Inline CTA bar. Kept visually distinct from the centred CTA block
+            in the next section so five calls-to-action down the page don't
+            all read as the same component repeated. */}
+        <Reveal delay={200} className="mt-14">
+          <div className="flex flex-col gap-6 rounded-2xl border border-navy/12 bg-paper px-8 py-8 md:flex-row md:items-center md:justify-between md:gap-10 lg:px-10">
+            <div>
+              <h3 className="text-display-sm text-ink-1">
+                Bereit für ein funktionierendes Benefit-System?
+              </h3>
+              <p className="mt-2 max-w-measure text-body-sm text-ink-2">
+                Wir analysieren Ihre aktuelle Situation kostenlos und zeigen
+                konkrete Potenziale auf.
+              </p>
+            </div>
+            <Button toId="contact-form-section" className="flex-shrink-0">
+              Jetzt kostenlose Analyse sichern
+            </Button>
+          </div>
+        </Reveal>
+      </Container>
     </section>
   );
 }

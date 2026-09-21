@@ -1,266 +1,311 @@
-import { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
+import { useRef, useState, type FormEvent } from 'react';
+import { CheckCircle2, Loader2, Send } from 'lucide-react';
+import lcLogoDark from '../images/lc-logo-lang-420-dark.webp';
+import Container from './ui/Container';
+import Reveal from './ui/Reveal';
+import { Honeypot, TextField } from './ui/Field';
+import { GENERIC_SUBMIT_ERROR, isValidEmail, orNull, submitContact } from '../lib/contact';
+import { scrollToId } from '../lib/motion';
 
-const FooterCTASection = () => {
-  const [isVisible, setIsVisible] = useState(false);
+const emptyForm = { name: '', email: '', telefon: '' };
+type FieldErrors = Partial<Record<'name' | 'email', string>>;
+
+const footerNav = [
+  { label: 'Herausforderung', id: 'problem-section' },
+  { label: 'Das System', id: 'benefit-system' },
+  { label: 'Umsetzung', id: 'implementation' },
+  { label: 'FAQ', id: 'faq-section' },
+];
+
+export default function FooterCTASection() {
+  const [formData, setFormData] = useState(emptyForm);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [honeypot, setHoneypot] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isDone, setIsDone] = useState(false);
+  const confirmationRef = useRef<HTMLDivElement>(null);
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    telefon: ''
-  });
-
-  const [errors, setErrors] = useState({
-    name: '',
-    email: ''
-  });
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+  const setField = (name: keyof typeof emptyForm) => (value: string) => {
+    setFormData((previous) => ({ ...previous, [name]: value }));
+    setErrors((previous) => ({ ...previous, [name]: undefined }));
+    setSubmitError(null);
   };
 
-  const validateForm = () => {
-    const newErrors = {
-      name: '',
-      email: ''
-    };
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name ist erforderlich';
+    const nextErrors: FieldErrors = {};
+    if (!formData.name.trim()) nextErrors.name = 'Bitte geben Sie Ihren Namen an.';
+    if (!formData.email.trim()) nextErrors.email = 'Bitte geben Sie Ihre E-Mail-Adresse an.';
+    else if (!isValidEmail(formData.email))
+      nextErrors.email = 'Diese E-Mail-Adresse scheint nicht zu stimmen.';
+
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      document.getElementById(`footer-${Object.keys(nextErrors)[0]}`)?.focus();
+      return;
     }
-    if (!formData.email.trim()) {
-      newErrors.email = 'E-Mail ist erforderlich';
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Bitte geben Sie eine gültige E-Mail ein';
-    }
 
-    setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error !== '');
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
+    if (honeypot.trim() !== '') {
+      setIsDone(true);
       return;
     }
 
     setIsSubmitting(true);
+    setSubmitError(null);
+
+    const [vorname, ...rest] = formData.name.trim().split(/\s+/);
 
     try {
-      const nameParts = formData.name.trim().split(' ');
-      const vorname = nameParts[0] || '';
-      const nachname = nameParts.slice(1).join(' ') || '';
-
-      const { error } = await supabase
-        .from('contact_submissions')
-        .insert([
-          {
-            vorname: vorname,
-            nachname: nachname,
-            email: formData.email,
-            telefon: formData.telefon || null,
-            firma: null,
-            mitarbeiteranzahl: null,
-            source: 'cta_footer_b2b'
-          }
-        ]);
-
-      if (error) throw error;
-
-      setSubmitSuccess(true);
-      setFormData({
-        name: '',
-        email: '',
-        telefon: ''
+      /* firma and source are what broke this form before: `source` did not
+         exist on the table at all and `firma` was NOT NULL, so every single
+         submission was rejected. See migration 20260921120000. */
+      await submitContact({
+        vorname,
+        nachname: rest.length > 0 ? rest.join(' ') : null,
+        email: formData.email.trim(),
+        telefon: orNull(formData.telefon),
+        firma: null,
+        mitarbeiteranzahl: null,
+        source: 'cta_footer_b2b',
       });
 
-      setTimeout(() => {
-        setSubmitSuccess(false);
-      }, 5000);
+      setFormData(emptyForm);
+      setIsDone(true);
+      window.requestAnimationFrame(() => confirmationRef.current?.focus());
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Es gab einen Fehler beim Absenden des Formulars. Bitte versuchen Sie es erneut.');
+      setSubmitError(error instanceof Error ? error.message : GENERIC_SUBMIT_ERROR);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleCTAClick = () => {
-    const footer = document.getElementById('contact-form-section');
-    if (footer) {
-      footer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  const currentYear = new Date().getFullYear();
-
   return (
-    <section
-      ref={sectionRef}
-      id="kontakt"
-      className="bg-[#F4F3EE] pt-20 md:pt-24 pb-0 relative"
-    >
-      <div className="max-w-[1280px] xl:max-w-[1360px] mx-auto relative px-6 md:px-8">
+    <section id="kontakt" className="relative z-10 on-light pt-section">
+      {/* The ground is painted by a layer that stops --overlap short of the
+          bottom, so the footer (pulled up by the same amount) shows through
+          behind the card. Painting it on the section itself covered the
+          overlap and the effect did nothing. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-[var(--overlap)] top-0 bg-cream-sunken"
+      />
 
-          {/* CTA Card */}
-          <div
-            className={`transition-all duration-700 relative z-20 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-          >
-            <div className="bg-[#000022] rounded-[28px] md:rounded-[32px] px-6 md:px-10 lg:px-12 py-10 md:py-12 lg:py-12 shadow-[0_18px_55px_rgba(0,0,0,0.35)]">
-              <div className="flex flex-col md:flex-row gap-10 md:gap-12 items-start md:items-stretch">
+      <Container className="relative">
+        <Reveal>
+          <div className="relative overflow-hidden rounded-3xl bg-navy px-7 py-12 lc-shadow-4 sm:px-10 md:px-12 md:py-14 lg:px-14">
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-gold-light/50 to-transparent"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-gold/10 blur-3xl"
+            />
 
-                {/* Left Content */}
-                <div className="flex-1 flex flex-col gap-5 md:gap-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-0.5 bg-[#B68F40]"></div>
-                    <span className="text-xs md:text-sm uppercase tracking-wider text-[#DCC383] font-medium">
-                      Jetzt beraten lassen
-                    </span>
-                  </div>
+            <div className="relative grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-12 lg:gap-16">
+              {/* --- Pitch --- */}
+              <div className="flex flex-col items-start">
+                <span className="inline-flex items-center gap-3 text-eyebrow uppercase text-gold-light">
+                  <span aria-hidden="true" className="h-px w-10 rounded-full bg-gold" />
+                  Jetzt beraten lassen
+                </span>
 
-                  <h2 className="text-white text-3xl md:text-4xl font-semibold leading-tight md:leading-[1.05] max-w-xl">
-                    Starten Sie jetzt Ihr funktionierendes Benefit-System.
-                  </h2>
+                <h2 className="mt-6 max-w-[16ch] text-display-md text-sheet-1">
+                  Starten Sie jetzt Ihr funktionierendes Benefit-System.
+                </h2>
 
-                  <p className="text-white/70 text-base md:text-lg max-w-xl">
-                    Wir zeigen Ihnen, wie wir Ihre Benefits so strukturieren, dass sie messbar wirken – für Mitarbeitende, HR und Geschäftsführung.
-                  </p>
+                <p className="mt-5 max-w-measure text-body-lg text-sheet-2">
+                  Wir zeigen Ihnen, wie wir Ihre Benefits so strukturieren, dass
+                  sie messbar wirken – für Mitarbeitende, HR und Geschäftsführung.
+                </p>
 
-                  <button
-                    onClick={handleCTAClick}
-                    className="bg-gradient-to-r from-[#B68F40] to-[#DCC383] text-[#000022] font-semibold px-6 py-3 rounded-xl hover:scale-[1.02] transition-all duration-300 w-full md:w-auto shadow-[0_6px_20px_rgba(182,143,64,0.35)]"
+                <button
+                  type="button"
+                  onClick={() => scrollToId('contact-form-section')}
+                  className="mt-8 inline-flex items-center justify-center rounded-xl bg-gold-gradient bg-[length:200%_100%] bg-left px-7 py-4 text-body-lg font-semibold text-navy shadow-[0_2px_10px_rgb(182_143_64_/_0.3)] transition-[background-position,transform,box-shadow] duration-300 ease-brand hover:bg-right hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgb(182_143_64_/_0.4)]"
+                >
+                  Jetzt Benefit-Analyse anfragen
+                </button>
+              </div>
+
+              {/* --- Quick contact --- */}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+                {isDone ? (
+                  <div
+                    ref={confirmationRef}
+                    tabIndex={-1}
+                    role="status"
+                    className="flex flex-col items-center py-6 text-center focus:outline-none"
                   >
-                    Jetzt Benefit-Analyse anfragen
-                  </button>
-                </div>
-
-                {/* Right Form */}
-                <div className="w-full md:w-[360px] lg:w-[380px] bg-white/5 rounded-2xl p-4 md:p-5 lg:p-6 flex flex-col gap-4">
-                  <h3 className="text-white font-semibold text-lg">Schnellkontakt</h3>
-
-                  <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Ihr Name"
-                      required
-                      className="bg-white/5 border border-white/10 text-white placeholder:text-white/35 rounded-xl px-4 py-3 focus:border-[#DCC383] focus:ring-1 focus:ring-[#DCC383] outline-none transition-all duration-200"
+                    <CheckCircle2
+                      className="h-9 w-9 text-success"
+                      strokeWidth={1.75}
+                      aria-hidden="true"
                     />
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="Ihre E-Mail"
-                      required
-                      className="bg-white/5 border border-white/10 text-white placeholder:text-white/35 rounded-xl px-4 py-3 focus:border-[#DCC383] focus:ring-1 focus:ring-[#DCC383] outline-none transition-all duration-200"
-                    />
-                    <input
-                      type="tel"
-                      name="telefon"
-                      value={formData.telefon}
-                      onChange={handleChange}
-                      placeholder="Telefonnummer"
-                      className="bg-white/5 border border-white/10 text-white placeholder:text-white/35 rounded-xl px-4 py-3 focus:border-[#DCC383] focus:ring-1 focus:ring-[#DCC383] outline-none transition-all duration-200"
-                    />
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="bg-gradient-to-r from-[#B68F40] to-[#DCC383] text-[#000022] font-medium text-sm px-5 py-3 rounded-lg hover:scale-[1.01] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    >
-                      {isSubmitting ? 'Wird gesendet...' : 'Nachricht senden'}
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                        <path d="m22 2-7 20-4-9-9-4Z"></path>
-                        <path d="M22 2 11 13"></path>
-                      </svg>
-                    </button>
-                  </form>
-
-                  {submitSuccess && (
-                    <div className="mt-2 p-3 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-center text-sm">
+                    <p className="mt-4 text-body-sm text-sheet-1">
                       Vielen Dank! Ihre Anfrage wurde erfolgreich übermittelt.
-                    </div>
-                  )}
-                </div>
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="text-title-lg font-semibold text-sheet-1">Schnellkontakt</h3>
+
+                    <form
+                      onSubmit={handleSubmit}
+                      noValidate
+                      className="relative mt-5 flex flex-col gap-4"
+                    >
+                      <Honeypot value={honeypot} onChange={setHoneypot} />
+
+                      <TextField
+                        id="footer-name"
+                        name="name"
+                        label="Ihr Name"
+                        required
+                        autoComplete="name"
+                        placeholder="Max Mustermann"
+                        value={formData.name}
+                        error={errors.name}
+                        onChange={(event) => setField('name')(event.target.value)}
+                      />
+                      <TextField
+                        id="footer-email"
+                        name="email"
+                        type="email"
+                        inputMode="email"
+                        label="Ihre E-Mail"
+                        required
+                        autoComplete="email"
+                        placeholder="max.mustermann@firma.de"
+                        value={formData.email}
+                        error={errors.email}
+                        onChange={(event) => setField('email')(event.target.value)}
+                      />
+                      <TextField
+                        id="footer-telefon"
+                        name="telefon"
+                        type="tel"
+                        inputMode="tel"
+                        label="Telefonnummer"
+                        autoComplete="tel"
+                        placeholder="+49 123 456789"
+                        value={formData.telefon}
+                        onChange={(event) => setField('telefon')(event.target.value)}
+                      />
+
+                      {submitError && (
+                        <p role="alert" className="text-caption text-danger">
+                          {submitError}
+                        </p>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gold-gradient bg-[length:200%_100%] bg-left px-5 py-3 text-body-sm font-semibold text-navy transition-[background-position,transform] duration-300 ease-brand hover:bg-right hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60"
+                      >
+                        {isSubmitting ? (
+                          <Loader2
+                            className="h-4 w-4 animate-spin"
+                            strokeWidth={2.5}
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <Send className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                        )}
+                        {isSubmitting ? 'Wird gesendet...' : 'Nachricht senden'}
+                      </button>
+                    </form>
+                  </>
+                )}
               </div>
             </div>
           </div>
-
-      </div>
-
-      {/* Footer Content */}
-      <div className="bg-[#DFE6F0] rounded-t-[26px] md:rounded-t-[30px] mt-[-120px] md:mt-[-140px] pt-[150px] md:pt-[170px] pb-9 md:pb-10 relative z-10 shadow-[0_12px_40px_rgba(0,0,0,0.04)]">
-        <div className="max-w-[1280px] xl:max-w-[1360px] mx-auto px-6 md:px-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h3 className="text-[#000022] font-semibold text-lg">
-                Leibinn Consulting
-              </h3>
-              <p className="text-[#000022]/60 text-sm">
-                Strukturierte Benefit- & Vorsorgekonzepte für Unternehmen
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-6 text-sm text-[#000022]/65">
-              <a href="#datenschutz" className="hover:text-[#000022] transition-colors">
-                Datenschutz
-              </a>
-              <a href="#impressum" className="hover:text-[#000022] transition-colors">
-                Impressum
-              </a>
-            </div>
-          </div>
-          <div className="mt-7 pt-4 border-t border-[#000022]/10 text-xs text-[#000022]/50">
-            © {currentYear} Leibinn Consulting. Alle Rechte vorbehalten.
-          </div>
-        </div>
-      </div>
+        </Reveal>
+      </Container>
     </section>
   );
-};
+}
 
-export default FooterCTASection;
+/**
+ * Site footer.
+ *
+ * Its own export so it can sit outside <main> — the page footer is not part
+ * of the document's main content.
+ */
+export function SiteFooter() {
+  const currentYear = new Date().getFullYear();
+
+  return (
+    /* The overlap is a fixed token rather than a negative margin tuned to one
+       card height, so the footer can't drift when the card above it reflows. */
+    <footer className="on-light relative z-0 -mt-[var(--overlap)] rounded-t-3xl bg-footer-blue pb-10 pt-[calc(var(--overlap)+3.5rem)]">
+      <Container>
+        <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16">
+          <div>
+            {/* Navy variant: the standard mark is white and effectively
+                invisible on the footer's light blue. */}
+            <img
+              src={lcLogoDark}
+              alt="Leibinn Consulting"
+              width={420}
+              height={61}
+              loading="lazy"
+              decoding="async"
+              className="h-7 w-auto"
+            />
+            <p className="mt-4 max-w-measure-sm text-body-sm text-ink-2">
+              Strukturierte Benefit- &amp; Vorsorgekonzepte für Unternehmen
+            </p>
+          </div>
+
+          <nav aria-label="Footer-Navigation" className="md:justify-self-end">
+            <ul className="grid grid-cols-2 gap-x-10">
+              {footerNav.map((item) => (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => scrollToId(item.id)}
+                    className="inline-flex min-h-[2.75rem] items-center text-body-sm text-ink-2 transition-colors duration-200 hover:text-ink-1"
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+
+        <div className="mt-8 flex flex-col gap-1 border-t border-navy/10 pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <p className="text-caption text-ink-3">
+            © {currentYear} Leibinn Consulting. Alle Rechte vorbehalten.
+          </p>
+
+          {/* NOTE: /impressum and /datenschutz do not exist yet. Both are
+              legally required for a German commercial site (§5 DDG and
+              Art. 13 GDPR) and must be built before launch. */}
+          <ul className="flex flex-wrap gap-6">
+            <li>
+              <a
+                href="/datenschutz"
+                className="inline-flex min-h-[2.75rem] items-center text-caption text-ink-2 underline-offset-4 transition-colors duration-200 hover:text-ink-1 hover:underline"
+              >
+                Datenschutz
+              </a>
+            </li>
+            <li>
+              <a
+                href="/impressum"
+                className="inline-flex min-h-[2.75rem] items-center text-caption text-ink-2 underline-offset-4 transition-colors duration-200 hover:text-ink-1 hover:underline"
+              >
+                Impressum
+              </a>
+            </li>
+          </ul>
+        </div>
+      </Container>
+    </footer>
+  );
+}

@@ -1,188 +1,141 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { useId, useState } from 'react';
+import { Minus, Plus } from 'lucide-react';
+import Container from './ui/Container';
+import Eyebrow from './ui/Eyebrow';
+import Reveal from './ui/Reveal';
 
-interface ConsequenceCard {
-  image: string;
-  headline: string;
-  text: string;
-  detailedText: string;
-}
+const consequences = [
+  {
+    image:
+      'https://images.pexels.com/photos/4226140/pexels-photo-4226140.jpeg?auto=compress&cs=tinysrgb&w=800',
+    headline: 'Produktivitätsverlust & steigende Fehlzeiten',
+    text: 'Fehlende Gesundheitsleistungen führen zu bis zu 30 % mehr Ausfalltagen – ein direkter Kostenfaktor.',
+    detailedText:
+      'Ohne gezielte Gesundheitsmaßnahmen steigen krankheitsbedingte Ausfälle deutlich an. Studien zeigen, dass präventive Gesundheitsleistungen die Fehlzeiten um bis zu 30% reduzieren können. Jeder Fehltag kostet Unternehmen nicht nur direkte Lohnkosten, sondern auch Produktivitätsverluste, Vertretungsaufwand und potenzielle Projektverzögerungen. Ein strukturiertes Benefit-System mit Fokus auf Prävention und Früherkennung schützt sowohl die Mitarbeitergesundheit als auch die Unternehmensproduktivität nachhaltig.',
+  },
+  {
+    image:
+      'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800',
+    headline: 'Nachteil im Wettbewerb um Fachkräfte',
+    text: 'Ohne moderne Benefits verlieren Unternehmen im Recruiting – Bewerbende entscheiden sich für Arbeitgeber mit klaren Vorteilen.',
+    detailedText:
+      'Der Arbeitsmarkt ist hart umkämpft, besonders bei qualifizierten Fachkräften. Benefits sind längst kein Nice-to-have mehr, sondern ein entscheidender Faktor im Recruiting. Unternehmen, die keine attraktiven Zusatzleistungen bieten, verlieren Top-Talente an Wettbewerber. Eine aktuelle Studie zeigt: 67% der Bewerbenden bewerten Gesundheits- und Vorsorgeleistungen als wichtigen Entscheidungsfaktor. Wer hier nicht mithalten kann, zahlt mehr Gehalt oder rekrutiert zweitklassige Kandidaten.',
+  },
+  {
+    image:
+      'https://images.pexels.com/photos/4226263/pexels-photo-4226263.jpeg?auto=compress&cs=tinysrgb&w=800',
+    headline: 'Geringere Mitarbeiterbindung',
+    text: 'Fehlende Wertschätzung erhöht die Wechselbereitschaft – Know-how geht verloren, Kosten steigen.',
+    detailedText:
+      'Mitarbeiterfluktuation ist einer der größten Kostentreiber für Unternehmen. Die Kosten für Neueinstellung, Einarbeitung und den Verlust von Fachwissen können bis zu 150% eines Jahresgehalts betragen. Benefits signalisieren Wertschätzung und Fürsorge – zentrale Faktoren für langfristige Bindung. Studien belegen: Unternehmen mit umfassenden Benefit-Programmen haben eine um 38% niedrigere Fluktuationsrate. Investition in Benefits ist Investition in Kontinuität und Teamstabilität.',
+  },
+  {
+    image:
+      'https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=800',
+    headline: 'Unzureichende steuerliche Nutzung',
+    text: 'Förderungen und steuerliche Vorteile bleiben ungenutzt – Geld, das im Unternehmen bleiben könnte.',
+    detailedText:
+      'Viele Unternehmen verschenken jährlich tausende Euro, weil sie steuerliche Freibeträge und Förderungen nicht nutzen. Bis zu 600€ pro Mitarbeitendem und Jahr können steueroptimiert für Gesundheitsleistungen eingesetzt werden – ohne Sozialabgaben, ohne Lohnsteuer. Hinzu kommen Sachbezüge, betriebliche Altersvorsorge und weitere Instrumente. Ein durchdachtes Benefit-System maximiert diese Vorteile, reduziert die Gesamtlohnkosten und erhöht gleichzeitig die Nettozuwendung für Mitarbeitende. Ungenutzte Potenziale sind verschenktes Geld.',
+  },
+];
 
 export default function ConsequencesSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [expandedCard, setExpandedCard] = useState<number | null>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    e.preventDefault();
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  const consequences: ConsequenceCard[] = [
-    {
-      image: 'https://images.pexels.com/photos/4226140/pexels-photo-4226140.jpeg?auto=compress&cs=tinysrgb&w=800',
-      headline: 'Produktivitätsverlust & steigende Fehlzeiten',
-      text: 'Fehlende Gesundheitsleistungen führen zu bis zu 30 % mehr Ausfalltagen – ein direkter Kostenfaktor.',
-      detailedText: 'Ohne gezielte Gesundheitsmaßnahmen steigen krankheitsbedingte Ausfälle deutlich an. Studien zeigen, dass präventive Gesundheitsleistungen die Fehlzeiten um bis zu 30% reduzieren können. Jeder Fehltag kostet Unternehmen nicht nur direkte Lohnkosten, sondern auch Produktivitätsverluste, Vertretungsaufwand und potenzielle Projektverzögerungen. Ein strukturiertes Benefit-System mit Fokus auf Prävention und Früherkennung schützt sowohl die Mitarbeitergesundheit als auch die Unternehmensproduktivität nachhaltig.'
-    },
-    {
-      image: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=800',
-      headline: 'Nachteil im Wettbewerb um Fachkräfte',
-      text: 'Ohne moderne Benefits verlieren Unternehmen im Recruiting – Bewerbende entscheiden sich für Arbeitgeber mit klaren Vorteilen.',
-      detailedText: 'Der Arbeitsmarkt ist hart umkämpft, besonders bei qualifizierten Fachkräften. Benefits sind längst kein Nice-to-have mehr, sondern ein entscheidender Faktor im Recruiting. Unternehmen, die keine attraktiven Zusatzleistungen bieten, verlieren Top-Talente an Wettbewerber. Eine aktuelle Studie zeigt: 67% der Bewerbenden bewerten Gesundheits- und Vorsorgeleistungen als wichtigen Entscheidungsfaktor. Wer hier nicht mithalten kann, zahlt mehr Gehalt oder rekrutiert zweitklassige Kandidaten.'
-    },
-    {
-      image: 'https://images.pexels.com/photos/4226263/pexels-photo-4226263.jpeg?auto=compress&cs=tinysrgb&w=800',
-      headline: 'Geringere Mitarbeiterbindung',
-      text: 'Fehlende Wertschätzung erhöht die Wechselbereitschaft – Know-how geht verloren, Kosten steigen.',
-      detailedText: 'Mitarbeiterfluktuation ist einer der größten Kostentreiber für Unternehmen. Die Kosten für Neueinstellung, Einarbeitung und den Verlust von Fachwissen können bis zu 150% eines Jahresgehalts betragen. Benefits signalisieren Wertschätzung und Fürsorge – zentrale Faktoren für langfristige Bindung. Studien belegen: Unternehmen mit umfassenden Benefit-Programmen haben eine um 38% niedrigere Fluktuationsrate. Investition in Benefits ist Investition in Kontinuität und Teamstabilität.'
-    },
-    {
-      image: 'https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=800',
-      headline: 'Unzureichende steuerliche Nutzung',
-      text: 'Förderungen und steuerliche Vorteile bleiben ungenutzt – Geld, das im Unternehmen bleiben könnte.',
-      detailedText: 'Viele Unternehmen verschenken jährlich tausende Euro, weil sie steuerliche Freibeträge und Förderungen nicht nutzen. Bis zu 600€ pro Mitarbeitendem und Jahr können steueroptimiert für Gesundheitsleistungen eingesetzt werden – ohne Sozialabgaben, ohne Lohnsteuer. Hinzu kommen Sachbezüge, betriebliche Altersvorsorge und weitere Instrumente. Ein durchdachtes Benefit-System maximiert diese Vorteile, reduziert die Gesamtlohnkosten und erhöht gleichzeitig die Nettozuwendung für Mitarbeitende. Ungenutzte Potenziale sind verschenktes Geld.'
-    }
-  ];
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const baseId = useId();
 
   return (
-    <section
-      ref={sectionRef}
-      id="consequences-section"
-      className="bg-[#000022] py-20 md:py-28"
-    >
-      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 lg:px-16">
-        {/* Glassmorphism Elevated Card */}
-        <div className="relative backdrop-blur-xl bg-white/[0.02] border border-white/10 rounded-3xl shadow-2xl p-8 sm:p-10 lg:p-16">
-        {/* Header Content */}
-        <div className="mb-12 md:mb-16">
-          {/* Label */}
-          <div
-            className={`mb-6 transition-all duration-700 delay-100 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <span className="inline-block text-[#DCC383] text-xs md:text-sm font-medium uppercase tracking-wider">
-              Wenn Unternehmen nicht handeln …
-            </span>
-          </div>
-
-          {/* Title and Body in Two Columns */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-            {/* Left Column - Title */}
-            <h1
-              className={`text-4xl sm:text-5xl lg:text-3xl xl:text-4xl font-bold text-[#F4F3EE] leading-[1.1] transition-all duration-700 delay-200 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
+    <section id="consequences-section" className="bg-navy py-section">
+      <Container>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
+          <div>
+            <Reveal>
+              <Eyebrow>Wenn Unternehmen nicht handeln …</Eyebrow>
+            </Reveal>
+            <Reveal delay={80} as="h2" className="mt-6 max-w-[18ch] text-display-md text-sheet-1">
               Stillstand wird teuer. Vor allem für Unternehmen.
-            </h1>
-
-            {/* Right Column - Body Text */}
-            <p
-              className={`text-base sm:text-lg text-[#F4F3EE]/80 leading-relaxed transition-all duration-700 delay-300 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
-              Fehlende Struktur in Gesundheits- und Vorsorgeleistungen führt zu messbaren Nachteilen – für das Unternehmen und das gesamte Team.
-            </p>
+            </Reveal>
           </div>
+
+          <Reveal delay={140} as="p" className="max-w-measure text-body-lg text-sheet-2 lg:pb-2">
+            Fehlende Struktur in Gesundheits- und Vorsorgeleistungen führt zu
+            messbaren Nachteilen – für das Unternehmen und das gesamte Team.
+          </Reveal>
         </div>
 
-        {/* 2x2 Grid of Image Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
-          {consequences.map((card, index) => (
-            <div
-              key={index}
-              className={`transition-all duration-700 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-              style={{ transitionDelay: `${400 + index * 100}ms` }}
-            >
-              <div
-                className={`group relative bg-[#05052F] border border-white/6 rounded-2xl overflow-hidden h-full transition-all duration-300 ease-out cursor-pointer ${
-                  expandedCard === index ? '' : 'hover:-translate-y-1 hover:border-[#B68F40]/40 hover:shadow-xl hover:shadow-[#B68F40]/15'
-                }`}
-                onClick={() => setExpandedCard(expandedCard === index ? null : index)}
-              >
-                {/* Image with Overlay */}
-                <div className="relative h-44 md:h-48 overflow-hidden">
-                  <img
-                    src={card.image}
-                    alt={card.headline}
-                    className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                  />
-                  {/* Reduced Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#000022]/30 via-[#000022]/50 to-[#05052F]" />
-                </div>
+        <ul className="mt-14 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:gap-8">
+          {consequences.map((card, index) => {
+            const panelId = `${baseId}-consequence-${index}`;
+            const isOpen = openIndex === index;
 
-                {/* Expanded White Overlay */}
-                <div
-                  className={`absolute inset-0 bg-white transition-opacity duration-500 ease-out ${
-                    expandedCard === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            return (
+              <Reveal key={card.headline} as="li" delay={index * 90}>
+                <article
+                  className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-navy-raised transition-[border-color,box-shadow,transform] duration-300 ease-brand ${
+                    isOpen
+                      ? 'border-gold/40 lc-shadow-dark-2'
+                      : 'border-white/10 hover:-translate-y-1 hover:border-gold/30 hover:lc-shadow-dark-2'
                   }`}
                 >
-                  <div className="h-full overflow-y-auto p-6 md:p-8">
-                    <h3 className="text-xl md:text-2xl font-bold text-[#000022] leading-tight mb-4">
-                      {card.headline}
-                    </h3>
-                    <p className="text-sm md:text-base text-[#000022]/80 leading-relaxed">
-                      {card.detailedText}
-                    </p>
+                  <div className="relative h-44 overflow-hidden md:h-48">
+                    <img
+                      src={card.image}
+                      alt=""
+                      aria-hidden="true"
+                      loading="lazy"
+                      decoding="async"
+                      width={800}
+                      height={534}
+                      className="h-full w-full object-cover transition-transform duration-700 ease-brand"
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-gradient-to-b from-navy/20 via-navy/55 to-navy-raised"
+                    />
                   </div>
-                </div>
 
-                {/* Text Content */}
-                <div className={`p-5 md:p-6 space-y-3 transition-opacity duration-300 ${
-                  expandedCard === index ? 'opacity-0' : 'opacity-100'
-                }`}>
-                  <h3 className="text-lg md:text-xl font-bold text-[#F4F3EE] leading-tight">
-                    {card.headline}
-                  </h3>
-                  <p className="text-sm text-[#F4F3EE]/70 leading-relaxed">
-                    {card.text}
-                  </p>
-                  <button
-                    className="inline-flex items-center gap-2 text-sm font-medium text-[#DCC383] hover:text-[#B68F40] transition-colors duration-200 group/btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setExpandedCard(index);
-                    }}
-                  >
-                    <span>mehr dazu</span>
-                    <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        </div>
-      </div>
+                  <div className="flex flex-1 flex-col p-6 md:p-7">
+                    <h3 className="text-title-lg font-bold text-sheet-1">{card.headline}</h3>
+
+                    <p className="mt-3 text-body-sm text-sheet-3">{card.text}</p>
+
+                    {/* 0fr → 1fr expands to the content's real height. The old
+                        card swapped in an absolutely-positioned white panel
+                        with its own inner scrollbar, which clipped the text
+                        and had no way back out on a keyboard. */}
+                    <div id={panelId} className="lc-collapse" data-open={isOpen} role="region">
+                      <div>
+                        <p className="mt-4 border-t border-white/10 pt-4 text-body-sm text-sheet-2">
+                          {card.detailedText}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setOpenIndex(isOpen ? null : index)}
+                      aria-expanded={isOpen}
+                      aria-controls={panelId}
+                      className="group/btn -my-2 mt-3 inline-flex min-h-[2.75rem] items-center gap-2 self-start rounded-lg py-2 text-body-sm font-medium text-gold-light transition-colors duration-200 hover:text-gold"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="flex h-6 w-6 items-center justify-center rounded-full border border-gold/30 transition-colors duration-200 group-hover/btn:border-gold/60 group-hover/btn:bg-gold/10"
+                      >
+                        {isOpen ? (
+                          <Minus className="h-3 w-3" strokeWidth={2} />
+                        ) : (
+                          <Plus className="h-3 w-3" strokeWidth={2} />
+                        )}
+                      </span>
+                      {isOpen ? 'weniger anzeigen' : 'mehr dazu'}
+                    </button>
+                  </div>
+                </article>
+              </Reveal>
+            );
+          })}
+        </ul>
+      </Container>
     </section>
   );
 }

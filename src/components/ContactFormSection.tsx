@@ -1,306 +1,239 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
+import { useRef, useState, type FormEvent } from 'react';
+import { CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
+import Container from './ui/Container';
+import Reveal from './ui/Reveal';
+import { Honeypot, SelectField, TextField } from './ui/Field';
+import { GENERIC_SUBMIT_ERROR, isValidEmail, orNull, submitContact } from '../lib/contact';
+
+const employeeOptions = [
+  { value: '1-3', label: '1-3' },
+  { value: '3-10', label: '3-10' },
+  { value: '10-25', label: '10-25' },
+  { value: '25-50', label: '25-50' },
+  { value: '50+', label: '50+' },
+];
+
+const emptyForm = {
+  vorname: '',
+  nachname: '',
+  email: '',
+  telefon: '',
+  firma: '',
+  mitarbeiteranzahl: '',
+};
+
+type FieldErrors = Partial<Record<'vorname' | 'nachname' | 'email' | 'firma', string>>;
 
 export default function ContactFormSection() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [formData, setFormData] = useState(emptyForm);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [honeypot, setHoneypot] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isDone, setIsDone] = useState(false);
+  const confirmationRef = useRef<HTMLDivElement>(null);
 
-  const [formData, setFormData] = useState({
-    vorname: '',
-    nachname: '',
-    email: '',
-    telefon: '',
-    firma: '',
-    mitarbeiteranzahl: ''
-  });
-
-  const [errors, setErrors] = useState({
-    vorname: '',
-    nachname: '',
-    email: '',
-    firma: ''
-  });
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+  const setField = (name: keyof typeof emptyForm) => (value: string) => {
+    setFormData((previous) => ({ ...previous, [name]: value }));
+    setErrors((previous) => ({ ...previous, [name]: undefined }));
+    setSubmitError(null);
   };
 
-  const validateForm = () => {
-    const newErrors = {
-      vorname: '',
-      nachname: '',
-      email: '',
-      firma: ''
-    };
-
-    if (!formData.vorname.trim()) {
-      newErrors.vorname = 'Vorname ist erforderlich';
-    }
-    if (!formData.nachname.trim()) {
-      newErrors.nachname = 'Nachname ist erforderlich';
-    }
-    if (!formData.email.trim()) {
-      newErrors.email = 'E-Mail ist erforderlich';
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Bitte geben Sie eine gültige E-Mail ein';
-    }
-    if (!formData.firma.trim()) {
-      newErrors.firma = 'Firma ist erforderlich';
-    }
-
-    setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error !== '');
+  const validate = (): FieldErrors => {
+    const next: FieldErrors = {};
+    if (!formData.vorname.trim()) next.vorname = 'Bitte geben Sie Ihren Vornamen an.';
+    if (!formData.nachname.trim()) next.nachname = 'Bitte geben Sie Ihren Nachnamen an.';
+    if (!formData.email.trim()) next.email = 'Bitte geben Sie Ihre E-Mail-Adresse an.';
+    else if (!isValidEmail(formData.email)) next.email = 'Diese E-Mail-Adresse scheint nicht zu stimmen.';
+    if (!formData.firma.trim()) next.firma = 'Bitte geben Sie Ihr Unternehmen an.';
+    return next;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
 
-    if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+    const nextErrors = validate();
+    setErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      // Move focus to the first problem instead of leaving the visitor to
+      // hunt for a red outline.
+      const firstKey = Object.keys(nextErrors)[0];
+      document.getElementById(`contact-${firstKey}`)?.focus();
+      return;
     }
-  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
+    // Silently accept-and-drop bot submissions.
+    if (honeypot.trim() !== '') {
+      setIsDone(true);
       return;
     }
 
     setIsSubmitting(true);
+    setSubmitError(null);
 
     try {
-      const { error } = await supabase
-        .from('contact_submissions')
-        .insert([
-          {
-            vorname: formData.vorname,
-            nachname: formData.nachname,
-            email: formData.email,
-            telefon: formData.telefon || null,
-            firma: formData.firma,
-            mitarbeiteranzahl: formData.mitarbeiteranzahl || null
-          }
-        ]);
-
-      if (error) throw error;
-
-      setSubmitSuccess(true);
-      setFormData({
-        vorname: '',
-        nachname: '',
-        email: '',
-        telefon: '',
-        firma: '',
-        mitarbeiteranzahl: ''
+      await submitContact({
+        vorname: formData.vorname.trim(),
+        nachname: orNull(formData.nachname),
+        email: formData.email.trim(),
+        telefon: orNull(formData.telefon),
+        firma: orNull(formData.firma),
+        mitarbeiteranzahl: orNull(formData.mitarbeiteranzahl),
+        source: 'contact_form',
       });
 
-      setTimeout(() => {
-        setSubmitSuccess(false);
-      }, 5000);
+      setFormData(emptyForm);
+      setIsDone(true);
+      window.requestAnimationFrame(() => confirmationRef.current?.focus());
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Es gab einen Fehler beim Absenden des Formulars. Bitte versuchen Sie es erneut.');
+      setSubmitError(error instanceof Error ? error.message : GENERIC_SUBMIT_ERROR);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section
-      ref={sectionRef}
-      id="contact-form-section"
-      className="bg-[#000022] py-16 md:py-20"
-    >
-      <div className="mx-auto max-w-[650px] px-6 sm:px-10">
-        <div
-          className={`transition-all duration-700 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <div className="relative p-6 sm:p-8 lg:p-10">
-            <h1 className="text-4xl sm:text-5xl lg:text-3xl xl:text-4xl font-bold leading-[1.1] text-[#F4F3EE] text-center mb-2">
-              Jetzt kostenlose Benefit-Analyse vereinbaren
-            </h1>
+    <section id="contact-form-section" className="bg-navy py-section">
+      <Container size="prose">
+        <Reveal className="text-center">
+          <h2 className="text-display-md text-sheet-1">
+            Jetzt kostenlose Benefit-Analyse vereinbaren
+          </h2>
+          <p className="mx-auto mt-4 max-w-measure-sm text-body-lg text-sheet-2">
+            Wir kontaktieren Sie innerhalb von 24 Stunden
+          </p>
+        </Reveal>
 
-            <p className="text-sm sm:text-base text-[#F4F3EE]/70 text-center mb-8">
-              Wir kontaktieren Sie innerhalb von 24 Stunden
-            </p>
+        <Reveal delay={120} className="mt-10">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-navy-raised p-6 sm:p-9 lc-shadow-dark-2">
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-gold-light/50 to-transparent"
+            />
 
-            {submitSuccess && (
-              <div className="mb-6 p-3 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-center text-sm">
-                Vielen Dank! Ihre Anfrage wurde erfolgreich übermittelt.
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="vorname" className="block text-xs font-medium text-[#F4F3EE] mb-1.5">
-                    Vorname<span className="text-[#DCC383]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="vorname"
-                    name="vorname"
-                    value={formData.vorname}
-                    onChange={handleChange}
-                    className={`w-full px-3 py-2.5 bg-[#DCC383] text-[#000022] placeholder-[#000022]/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B68F40] transition-all text-sm ${
-                      errors.vorname ? 'ring-2 ring-red-500' : ''
-                    }`}
-                    placeholder="Max"
-                  />
-                  {errors.vorname && (
-                    <p className="mt-1 text-xs text-red-400">{errors.vorname}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="nachname" className="block text-xs font-medium text-[#F4F3EE] mb-1.5">
-                    Nachname<span className="text-[#DCC383]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="nachname"
-                    name="nachname"
-                    value={formData.nachname}
-                    onChange={handleChange}
-                    className={`w-full px-3 py-2.5 bg-[#DCC383] text-[#000022] placeholder-[#000022]/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B68F40] transition-all text-sm ${
-                      errors.nachname ? 'ring-2 ring-red-500' : ''
-                    }`}
-                    placeholder="Mustermann"
-                  />
-                  {errors.nachname && (
-                    <p className="mt-1 text-xs text-red-400">{errors.nachname}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-xs font-medium text-[#F4F3EE] mb-1.5">
-                    E-Mail Adresse<span className="text-[#DCC383]">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`w-full px-3 py-2.5 bg-[#DCC383] text-[#000022] placeholder-[#000022]/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B68F40] transition-all text-sm ${
-                      errors.email ? 'ring-2 ring-red-500' : ''
-                    }`}
-                    placeholder="max.mustermann@firma.de"
-                  />
-                  {errors.email && (
-                    <p className="mt-1 text-xs text-red-400">{errors.email}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="telefon" className="block text-xs font-medium text-[#F4F3EE] mb-1.5">
-                    Telefonnummer
-                  </label>
-                  <input
-                    type="tel"
-                    id="telefon"
-                    name="telefon"
-                    value={formData.telefon}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2.5 bg-[#DCC383] text-[#000022] placeholder-[#000022]/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B68F40] transition-all text-sm"
-                    placeholder="+49 123 456789"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="firma" className="block text-xs font-medium text-[#F4F3EE] mb-1.5">
-                    Firma<span className="text-[#DCC383]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="firma"
-                    name="firma"
-                    value={formData.firma}
-                    onChange={handleChange}
-                    className={`w-full px-3 py-2.5 bg-[#DCC383] text-[#000022] placeholder-[#000022]/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B68F40] transition-all text-sm ${
-                      errors.firma ? 'ring-2 ring-red-500' : ''
-                    }`}
-                    placeholder="Muster GmbH"
-                  />
-                  {errors.firma && (
-                    <p className="mt-1 text-xs text-red-400">{errors.firma}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="mitarbeiteranzahl" className="block text-xs font-medium text-[#F4F3EE] mb-1.5">
-                    Mitarbeiteranzahl
-                  </label>
-                  <select
-                    id="mitarbeiteranzahl"
-                    name="mitarbeiteranzahl"
-                    value={formData.mitarbeiteranzahl}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2.5 bg-[#DCC383] text-[#000022] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B68F40] transition-all text-sm"
-                  >
-                    <option value="">Bitte auswählen</option>
-                    <option value="1-3">1-3</option>
-                    <option value="3-10">3-10</option>
-                    <option value="10-25">10-25</option>
-                    <option value="25-50">25-50</option>
-                    <option value="50+">50+</option>
-                  </select>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="group relative w-full inline-flex items-center justify-center px-8 py-3.5 bg-gradient-to-r from-[#B68F40] to-[#DCC383] text-[#000022] font-semibold text-base rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-out hover:shadow-2xl hover:shadow-[#B68F40]/40 hover:scale-[1.03] focus:outline-none focus:ring-4 focus:ring-[#B68F40]/50 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-lg mt-6"
+            {isDone ? (
+              /* A persistent confirmation panel. The old build showed a
+                 banner that removed itself after five seconds, so a visitor
+                 who looked away had no evidence the form had been sent. */
+              <div
+                ref={confirmationRef}
+                tabIndex={-1}
+                role="status"
+                className="flex flex-col items-center py-8 text-center focus:outline-none"
               >
-                <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-300 ease-out pointer-events-none" />
-                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
-                <span className="relative z-10 transition-all duration-300 ease-out group-hover:tracking-wide pointer-events-none">
-                  {isSubmitting ? 'Wird gesendet...' : 'Jetzt kostenlose Analyse anfragen'}
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-success/15 ring-1 ring-inset ring-success/30">
+                  <CheckCircle2 className="h-7 w-7 text-success" strokeWidth={1.75} aria-hidden="true" />
                 </span>
-              </button>
+                <p className="mt-5 font-display text-display-sm text-sheet-1">
+                  Vielen Dank! Ihre Anfrage wurde erfolgreich übermittelt.
+                </p>
+                <p className="mt-3 max-w-measure-sm text-body-sm text-sheet-3">
+                  Wir kontaktieren Sie innerhalb von 24 Stunden
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} noValidate className="relative">
+                <Honeypot value={honeypot} onChange={setHoneypot} />
 
-              <p className="text-xs text-[#F4F3EE]/50 text-center pt-2">
-                Mit dem Absenden akzeptieren Sie unsere Datenschutzbestimmungen
-              </p>
-            </form>
+                <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+                  <TextField
+                    id="contact-vorname"
+                    name="vorname"
+                    label="Vorname"
+                    required
+                    autoComplete="given-name"
+                    placeholder="Max"
+                    value={formData.vorname}
+                    error={errors.vorname}
+                    onChange={(event) => setField('vorname')(event.target.value)}
+                  />
+                  <TextField
+                    id="contact-nachname"
+                    name="nachname"
+                    label="Nachname"
+                    required
+                    autoComplete="family-name"
+                    placeholder="Mustermann"
+                    value={formData.nachname}
+                    error={errors.nachname}
+                    onChange={(event) => setField('nachname')(event.target.value)}
+                  />
+                  <TextField
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    inputMode="email"
+                    label="E-Mail Adresse"
+                    required
+                    autoComplete="email"
+                    placeholder="max.mustermann@firma.de"
+                    value={formData.email}
+                    error={errors.email}
+                    onChange={(event) => setField('email')(event.target.value)}
+                  />
+                  <TextField
+                    id="contact-telefon"
+                    name="telefon"
+                    type="tel"
+                    inputMode="tel"
+                    label="Telefonnummer"
+                    autoComplete="tel"
+                    placeholder="+49 123 456789"
+                    value={formData.telefon}
+                    onChange={(event) => setField('telefon')(event.target.value)}
+                  />
+                  <TextField
+                    id="contact-firma"
+                    name="firma"
+                    label="Firma"
+                    required
+                    autoComplete="organization"
+                    placeholder="Muster GmbH"
+                    value={formData.firma}
+                    error={errors.firma}
+                    onChange={(event) => setField('firma')(event.target.value)}
+                  />
+                  <SelectField
+                    id="contact-mitarbeiteranzahl"
+                    name="mitarbeiteranzahl"
+                    label="Mitarbeiteranzahl"
+                    placeholder="Bitte auswählen"
+                    options={employeeOptions}
+                    value={formData.mitarbeiteranzahl}
+                    onChange={(event) => setField('mitarbeiteranzahl')(event.target.value)}
+                  />
+                </div>
+
+                {submitError && (
+                  <p
+                    role="alert"
+                    className="mt-5 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-body-sm text-danger"
+                  >
+                    {submitError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gold-gradient bg-[length:200%_100%] bg-left px-7 py-4 text-body-lg font-semibold text-navy shadow-[0_2px_10px_rgb(182_143_64_/_0.28)] transition-[background-position,transform,box-shadow] duration-300 ease-brand hover:bg-right hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgb(182_143_64_/_0.38)] disabled:pointer-events-none disabled:opacity-60"
+                >
+                  {isSubmitting && (
+                    <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} aria-hidden="true" />
+                  )}
+                  {isSubmitting ? 'Wird gesendet...' : 'Jetzt kostenlose Analyse anfragen'}
+                </button>
+
+                <p className="mt-4 flex items-center justify-center gap-2 text-caption text-sheet-3">
+                  <ShieldCheck className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                  Mit dem Absenden akzeptieren Sie unsere Datenschutzbestimmungen
+                </p>
+              </form>
+            )}
           </div>
-        </div>
-      </div>
+        </Reveal>
+      </Container>
     </section>
   );
 }

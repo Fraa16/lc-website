@@ -1,165 +1,106 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { Search, Cog, Users } from 'lucide-react';
+import Container from './ui/Container';
+import Button from './ui/Button';
+import Eyebrow from './ui/Eyebrow';
+import Reveal from './ui/Reveal';
+
+const steps = [
+  {
+    number: '01',
+    icon: Search,
+    title: 'Analyse & Potenzialcheck',
+    description:
+      'Wir prüfen bestehende Strukturen, steuerliche Möglichkeiten und zeigen klar auf, welche Benefits wirklich Wirkung erzielen.',
+  },
+  {
+    number: '02',
+    icon: Cog,
+    title: 'System einrichten',
+    description:
+      'Einbindung der passenden Gesundheits- und Vorsorgebausteine, zentrale Verwaltung, digitale Prozesse – alles aus einer Hand.',
+  },
+  {
+    number: '03',
+    icon: Users,
+    title: 'Mitarbeitende onboarden',
+    description:
+      'Wir übernehmen Kommunikation & Aufklärung, erklären Leistungen verständlich und sorgen für maximale Nutzung im Team.',
+  },
+];
 
 export default function ImplementationSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const steps = [
-    {
-      number: '01',
-      icon: Search,
-      title: 'Analyse & Potenzialcheck',
-      description: 'Wir prüfen bestehende Strukturen, steuerliche Möglichkeiten und zeigen klar auf, welche Benefits wirklich Wirkung erzielen.'
-    },
-    {
-      number: '02',
-      icon: Cog,
-      title: 'System einrichten',
-      description: 'Einbindung der passenden Gesundheits- und Vorsorgebausteine, zentrale Verwaltung, digitale Prozesse – alles aus einer Hand.'
-    },
-    {
-      number: '03',
-      icon: Users,
-      title: 'Mitarbeitende onboarden',
-      description: 'Wir übernehmen Kommunikation & Aufklärung, erklären Leistungen verständlich und sorgen für maximale Nutzung im Team.'
-    }
-  ];
-
-  const handleCTAClick = () => {
-    const contactSection = document.getElementById('contact-form-section');
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <section
-      ref={sectionRef}
-      id="implementation"
-      className="bg-[#F4F3EE] py-20 md:py-28"
-    >
-      <div className="mx-auto max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px] px-6 md:px-8">
-        {/* Header Area */}
-        <div className="mb-16 md:mb-20 text-center lg:text-left">
-          <div
-            className={`transition-all duration-700 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <span className="inline-block text-[#B68F40] text-xs md:text-sm font-medium uppercase tracking-wider mb-4">
-              Unser Ablauf
-            </span>
-          </div>
+    <section id="implementation" className="on-light bg-cream-sunken py-section">
+      <Container>
+        <div className="max-w-measure">
+          <Reveal>
+            <Eyebrow tone="light">Unser Ablauf</Eyebrow>
+          </Reveal>
 
-          <h2
-            className={`text-lg sm:text-xl lg:text-xl xl:text-2xl font-normal text-[#B68F40] leading-tight transition-all duration-700 delay-100 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Schnell eingeführt.
-          </h2>
+          <Reveal delay={80} className="mt-6">
+            <h2 className="text-display-lg text-ink-1">
+              <span className="block font-medium text-ink-3">Schnell eingeführt.</span>
+              <span className="block">Und von Anfang an wirksam.</span>
+            </h2>
+          </Reveal>
 
-          <h1
-            className={`text-4xl sm:text-5xl lg:text-3xl xl:text-4xl font-bold text-[#000022] leading-tight transition-all duration-700 delay-150 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Und von Anfang an wirksam.
-          </h1>
-
-          <p
-            className={`text-base sm:text-lg lg:text-xl text-[#000022]/80 leading-relaxed max-w-4xl mx-auto lg:mx-0 transition-all duration-700 delay-200 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Wir übernehmen die komplette Implementierung – von der Analyse bis zur laufenden Betreuung. Für Sie bleibt der Aufwand minimal.
-          </p>
+          <Reveal delay={140} as="p" className="mt-6 text-lead text-ink-2">
+            Wir übernehmen die komplette Implementierung – von der Analyse bis zur
+            laufenden Betreuung. Für Sie bleibt der Aufwand minimal.
+          </Reveal>
         </div>
 
-        {/* 3-Step Process */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-16 md:mb-20">
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={index}
-                className={`group relative bg-white border border-[#000022]/10 rounded-3xl p-8 md:p-10 transition-all duration-300 ease-out hover:-translate-y-2 hover:border-[#B68F40]/50 hover:shadow-2xl hover:shadow-[#B68F40]/20 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: `${300 + index * 120}ms` }}
-              >
-                {/* Step Number Badge */}
-                <div className="mb-6">
-                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#B68F40]/20 to-[#DCC383]/20 border border-[#DCC383]/40 text-[#DCC383] text-sm font-bold">
-                    {step.number}
-                  </span>
-                </div>
+        {/* A process section should look like a process. Three detached cards
+            said nothing about sequence; the rail carries the eye through it. */}
+        <ol className="relative mt-16 grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-8 lg:gap-12">
+          {/* Stacked layout: one continuous rail down the left. */}
+          <span
+            aria-hidden="true"
+            className="absolute left-7 top-7 h-[calc(100%-4rem)] w-px bg-gradient-to-b from-gold/45 via-gold/25 to-transparent md:hidden"
+          />
 
-                {/* Icon Container */}
-                <div className="mb-6">
-                  <div className="inline-flex items-center justify-center w-14 h-14 lg:w-16 lg:h-16 rounded-xl bg-gradient-to-br from-[#B68F40]/20 to-[#DCC383]/20 border border-[#DCC383]/30 transition-all duration-300 group-hover:border-[#DCC383]/60 group-hover:shadow-lg group-hover:shadow-[#DCC383]/20">
-                    <Icon className="w-7 h-7 lg:w-8 lg:h-8 text-[#B68F40]" strokeWidth={1.5} />
-                  </div>
-                </div>
+          {steps.map(({ number, icon: Icon, title, description }, index) => (
+            <Reveal key={number} as="li" delay={index * 110} className="relative pl-20 sm:pl-20 md:pl-0">
+              <div className="flex items-center gap-4">
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-0 flex h-14 w-14 items-center justify-center rounded-full bg-navy font-display text-body-sm font-bold tabular-nums text-gold-light lc-shadow-2 md:relative md:h-14 md:w-14"
+                >
+                  {number}
+                </span>
 
-                {/* Title */}
-                <h3 className="text-xl lg:text-2xl font-bold text-[#000022] mb-4 leading-tight">
-                  {step.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-sm lg:text-base text-[#000022]/80 leading-relaxed">
-                  {step.description}
-                </p>
+                {/* Row layout: each step bridges to the next one and the
+                    last step draws nothing, so the rail ends where the
+                    process does instead of trailing off the grid. */}
+                {index < steps.length - 1 && (
+                  <span
+                    aria-hidden="true"
+                    className="hidden h-px flex-1 bg-gradient-to-r from-gold/45 to-gold/20 md:-mr-8 md:block lg:-mr-12"
+                  />
+                )}
               </div>
-            );
-          })}
-        </div>
 
-        {/* CTA Block */}
-        <div
-          className={`text-center max-w-3xl mx-auto transition-all duration-700 delay-500 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#000022] mb-4">
+              <div className="md:mt-8">
+                <Icon className="h-6 w-6 text-gold" strokeWidth={1.5} aria-hidden="true" />
+                <h3 className="mt-5 text-display-sm text-ink-1">{title}</h3>
+                <p className="mt-3 max-w-measure text-body-sm text-ink-2">{description}</p>
+              </div>
+            </Reveal>
+          ))}
+        </ol>
+
+        <Reveal delay={260} className="mt-20 text-center">
+          <h3 className="mx-auto max-w-[22ch] text-display-md text-ink-1">
             Wie könnte Ihr Benefit-System aussehen?
           </h3>
-
-          <p className="text-base sm:text-lg text-[#000022]/70 mb-8 leading-relaxed">
+          <p className="mx-auto mt-4 max-w-measure-sm text-body-lg text-ink-2">
             Wir zeigen Ihnen konkrete Szenarien für Ihre Unternehmensgröße.
           </p>
-
-          <button
-            onClick={handleCTAClick}
-            className="inline-flex items-center justify-center px-8 py-4 text-base lg:text-lg font-semibold text-white bg-gradient-to-r from-[#B68F40] to-[#DCC383] rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#DCC383]/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#DCC383]/50 focus:ring-offset-2 focus:ring-offset-[#F4F3EE]"
-          >
-            Kostenlose Analyse anfordern
-          </button>
-        </div>
-      </div>
+          <div className="mt-8">
+            <Button toId="contact-form-section">Kostenlose Analyse anfordern</Button>
+          </div>
+        </Reveal>
+      </Container>
     </section>
   );
 }
