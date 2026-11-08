@@ -1,201 +1,159 @@
-import { useState, useEffect, useRef } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { useIsDesktop } from '../hooks/useMediaQuery';
+import { cx } from '../lib/cx';
+import { pad2 } from '../lib/format';
+import { Reveal } from './ui/Reveal';
+import { Eyebrow, anchorClass, containerClass, h2Default, sectionSpacing } from './ui/SectionHeader';
 
-interface FAQItem {
-  question: string;
-  answer: string;
-}
+const faqs = [
+  {
+    q: 'Wie viel interner Aufwand entsteht für uns?',
+    a: 'In den meisten Projekten wenige Stunden. Einrichtung, Kommunikation, Onboarding und Updates übernehmen wir. Ihr HR muss weder Anträge prüfen noch Fristen überwachen.',
+  },
+  {
+    q: 'Können alle Mitarbeitenden teilnehmen, auch Minijobber und Teilzeitkräfte?',
+    a: 'Ja. Das System bindet alle Mitarbeitenden ein, unabhängig von Arbeitszeit, Standort oder Vertragsmodell. Bei Bedarf entwickeln wir unterschiedliche Pakete, damit es für alle fair bleibt.',
+    aMobile:
+      'Ja. Das System bindet alle Mitarbeitenden ein, unabhängig von Arbeitszeit, Standort oder Vertragsmodell. Bei Bedarf entwickeln wir unterschiedliche Pakete.',
+  },
+  {
+    q: 'Welche steuerlichen Vorteile können wir konkret nutzen?',
+    a: 'Viele Benefits lassen sich steuer- und sozialversicherungsbegünstigt gestalten, etwa über den Freibetrag für Gesundheitsförderung oder steuerfreie Sachbezüge. Ihr konkretes Potenzial zeigen wir im Erstgespräch.',
+  },
+  {
+    q: 'Müssen wir bestehende Verträge ablösen?',
+    a: 'Meist nicht. Bestehende Regelungen lassen sich oft einbinden oder sauber migrieren. Wir prüfen, was sinnvoll ist, und vermeiden Doppelstrukturen.',
+  },
+  {
+    q: 'Wie stellen wir sicher, dass die Benefits genutzt werden?',
+    a: 'Wir übernehmen die komplette Mitarbeiterinformation: digital, verständlich und regelmäßig aktualisiert. Das sorgt für Transparenz und echte Nutzung.',
+    aMobile: 'Wir übernehmen die komplette Mitarbeiterinformation: digital, verständlich und regelmäßig aktualisiert.',
+  },
+  {
+    q: 'Was passiert bei Ein- und Austritten oder Elternzeit?',
+    a: 'Das System passt sich an. Neue Mitarbeitende werden eingegliedert, bei Austritten werden Leistungen beendet oder übertragen, rechtlich und finanziell sauber geregelt.',
+  },
+];
 
-const FAQSection = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [openLeftIndex, setOpenLeftIndex] = useState<number | null>(null);
-  const [openRightIndex, setOpenRightIndex] = useState<number | null>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const leftColumnFAQs: FAQItem[] = [
-    {
-      question: 'Wie viel interner Aufwand entsteht wirklich für unser Unternehmen?',
-      answer: 'In den meisten Projekten liegt der interne Aufwand bei wenigen Stunden. Wir übernehmen Einrichtung, Kommunikation, Onboarding und regelmäßige Updates. Ihre HR-Abteilung muss weder Anträge prüfen noch Fristen überwachen – das läuft vollständig über uns.'
-    },
-    {
-      question: 'Können alle Mitarbeitenden teilnehmen – auch Minijobber, Teilzeitkräfte oder Teams im Außendienst?',
-      answer: 'Ja. Das System ist so aufgebaut, dass alle Mitarbeitenden eingebunden werden können – unabhängig von Arbeitszeit, Standort oder Vertragsmodell. Je nach Struktur entwickeln wir unterschiedliche Benefit-Pakete, damit es für alle fair und sinnvoll bleibt.'
-    },
-    {
-      question: 'Wie läuft die Implementierung praktisch ab?',
-      answer: 'Wir starten mit einer kurzen Analyse, definieren anschließend das passende Leistungspaket und kümmern uns danach um die gesamte technische und organisatorische Umsetzung. Sie müssen keine neue Software einführen – alles funktioniert parallel zu Ihren bestehenden Prozessen.'
-    },
-    {
-      question: 'Welche steuerlichen Vorteile können wir konkret nutzen?',
-      answer: 'Viele Benefits lassen sich steuer- und sozialversicherungsbegünstigt gestalten. In der Praxis führt das häufig zu spürbaren Einsparungen, sowohl für das Unternehmen als auch für Mitarbeitende. Im Erstgespräch zeigen wir Ihnen Ihr konkretes Potenzial.'
-    }
-  ];
-
-  const rightColumnFAQs: FAQItem[] = [
-    {
-      question: 'Müssen wir bestehende Verträge ablösen oder können diese integriert werden?',
-      answer: 'Bestehende Regelungen können in vielen Fällen eingebunden oder sauber migriert werden. Wir prüfen, welche Lösungen sinnvoll sind, vermeiden Doppelstrukturen und sorgen für eine konsistente und transparente Struktur.'
-    },
-    {
-      question: 'Wie stellen wir sicher, dass die Benefits wirklich genutzt werden?',
-      answer: 'Ein gutes Benefitsystem lebt von klarer Kommunikation. Deshalb übernehmen wir die komplette Mitarbeiterinformation – digital, verständlich und regelmäßig aktualisiert. Das sorgt für Transparenz und echte Nutzung.'
-    },
-    {
-      question: 'Wie wird die Administration reduziert – und was übernehmen Sie konkret?',
-      answer: 'Wir übernehmen die gesamte Verwaltung: Vertragsupdates, Fristen, Anpassungen, Mitarbeiterein- und -austritte sowie Dokumentation. Ihr Team wird deutlich entlastet und gewinnt Zeit für strategische Themen.'
-    },
-    {
-      question: 'Was passiert bei Fluktuation oder Veränderungen – z. B. neue Mitarbeitende, Elternzeit oder Austritt?',
-      answer: 'Das System passt sich automatisch an. Neue Mitarbeitende werden unkompliziert eingegliedert, bei Austritten werden Leistungen beendet oder übertragen – wir stellen sicher, dass rechtlich und finanziell alles sauber geregelt ist.'
-    }
-  ];
-
-  const toggleLeftItem = (index: number) => {
-    setOpenLeftIndex(openLeftIndex === index ? null : index);
-  };
-
-  const toggleRightItem = (index: number) => {
-    setOpenRightIndex(openRightIndex === index ? null : index);
-  };
+export default function FAQSection() {
+  const desktop = useIsDesktop();
+  const [open, setOpen] = useState(0);
+  const toggle = (i: number) => setOpen((cur) => (cur === i ? -1 : i));
 
   return (
-    <section ref={sectionRef} id="faq-section" className="bg-[#F4F3EE] py-20 md:py-28">
-      <div className="max-w-7xl xl:max-w-[1280px] 2xl:max-w-[1400px] mx-auto px-6 md:px-8">
-        {/* Label */}
-        <div className="text-center mb-6">
-          <span
-            className={`inline-block text-xs md:text-sm uppercase tracking-wider font-semibold bg-gradient-to-r from-[#B68F40] to-[#DCC383] bg-clip-text text-transparent transition-all duration-700 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Häufige Fragen
-          </span>
-        </div>
-
-        {/* Title */}
-        <h2
-          className={`text-3xl sm:text-4xl lg:text-5xl font-bold text-[#000022] leading-tight text-center mb-4 transition-all duration-700 delay-100 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          Klarheit für Ihre Entscheidung
+    <section
+      id="faq"
+      tabIndex={-1}
+      aria-labelledby="faq-title"
+      className={cx(
+        anchorClass,
+        containerClass,
+        sectionSpacing,
+        'lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:items-start lg:gap-[clamp(40px,6vw,96px)]'
+      )}
+    >
+      <Reveal className="flex flex-col gap-5 lg:sticky lg:top-[120px] lg:gap-[26px]">
+        <Eyebrow>FAQ</Eyebrow>
+        <h2 id="faq-title" className={cx(h2Default, 'lg:text-[clamp(40px,4vw,60px)]')}>
+          Klare Antworten vor dem ersten Gespräch.
         </h2>
+        {desktop && (
+          <p className="m-0 text-[18px] leading-[1.55] text-navy/66">
+            Aufwand, Ablauf, Steuern und Verträge: die Fragen, die Entscheider wirklich beschäftigen.
+          </p>
+        )}
+      </Reveal>
 
-        {/* Subtitle */}
-        <p
-          className={`text-base md:text-lg text-[#000022]/80 leading-relaxed text-center max-w-3xl mx-auto mb-16 transition-all duration-700 delay-200 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          Antworten auf die Fragen, die Entscheider wirklich beschäftigen.
-        </p>
-
-        {/* FAQ Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {/* Left Column */}
-          <div className="space-y-4">
-            {leftColumnFAQs.map((faq, index) => (
-              <div
-                key={index}
-                className={`bg-white rounded-2xl border border-[#B68F40]/20 shadow-sm hover:shadow-md transition-all duration-300 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{
-                  transitionDelay: `${300 + index * 100}ms`
-                }}
-              >
-                <button
-                  onClick={() => toggleLeftItem(index)}
-                  className="w-full px-6 py-5 flex items-start justify-between gap-4 text-left"
-                >
-                  <span className="text-base md:text-lg font-semibold text-[#000022] leading-tight">
-                    {faq.question}
-                  </span>
-                  <ChevronDown
-                    className={`w-5 h-5 text-[#B68F40] flex-shrink-0 mt-1 transition-transform duration-300 ${
-                      openLeftIndex === index ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    openLeftIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                  }`}
-                >
-                  <div className="px-6 pb-5">
-                    <p className="text-sm md:text-base text-[#000022]/80 leading-relaxed">
-                      {faq.answer}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
+      <div className="mt-6 flex flex-col border-b border-navy/12 lg:mt-0">
+        {desktop && (
+          <div className="flex justify-between pb-5 text-[13px] font-semibold uppercase leading-none tracking-[0.08em]">
+            <span>Die wichtigsten Fragen</span>
+            <span aria-hidden="true" className="text-gold-dark">
+              Zum Öffnen tippen
+            </span>
           </div>
+        )}
 
-          {/* Right Column */}
-          <div className="space-y-4">
-            {rightColumnFAQs.map((faq, index) => (
-              <div
-                key={index}
-                className={`bg-white rounded-2xl border border-[#B68F40]/20 shadow-sm hover:shadow-md transition-all duration-300 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{
-                  transitionDelay: `${300 + index * 100}ms`
-                }}
-              >
+        {faqs.map((item, i) => {
+          const isOpen = open === i;
+          const triggerId = `faq-trigger-${i}`;
+          const panelId = `faq-panel-${i}`;
+          const Wrapper = desktop ? Reveal : 'div';
+          return (
+            <Wrapper key={item.q} className="border-t border-navy/12">
+              <h3>
                 <button
-                  onClick={() => toggleRightItem(index)}
-                  className="w-full px-6 py-5 flex items-start justify-between gap-4 text-left"
+                  type="button"
+                  id={triggerId}
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
+                  onClick={() => toggle(i)}
+                  className={cx(
+                    'grid w-full items-center text-left text-navy',
+                    desktop
+                      ? 'grid-cols-[64px_minmax(0,1fr)_64px] py-7'
+                      : 'grid-cols-[minmax(0,1fr)_48px] gap-4 py-[22px]'
+                  )}
                 >
-                  <span className="text-base md:text-lg font-semibold text-[#000022] leading-tight">
-                    {faq.question}
+                  {desktop && (
+                    <span className="text-[15px] font-semibold leading-none text-gold-dark">{pad2(i + 1)}</span>
+                  )}
+                  <span
+                    className={cx(
+                      'font-medium',
+                      desktop
+                        ? 'text-[clamp(22px,2vw,28px)] leading-[1.2] tracking-[-0.03em]'
+                        : 'text-[19px] leading-[1.25] tracking-[-0.02em]'
+                    )}
+                  >
+                    {item.q}
                   </span>
-                  <ChevronDown
-                    className={`w-5 h-5 text-[#B68F40] flex-shrink-0 mt-1 transition-transform duration-300 ${
-                      openRightIndex === index ? 'rotate-180' : ''
-                    }`}
-                  />
+                  <PlusIcon open={isOpen} large={desktop} />
                 </button>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    openRightIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                  }`}
+              </h3>
+              <div id={panelId} role="region" aria-labelledby={triggerId} hidden={!isOpen}>
+                <p
+                  className={cx(
+                    'm-0 leading-[1.6] text-navy/66',
+                    desktop ? 'pb-8 pl-16 pr-[120px] text-[17px]' : 'pb-6 text-[16px]'
+                  )}
                 >
-                  <div className="px-6 pb-5">
-                    <p className="text-sm md:text-base text-[#000022]/80 leading-relaxed">
-                      {faq.answer}
-                    </p>
-                  </div>
-                </div>
+                  {desktop ? item.a : (item.aMobile ?? item.a)}
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
+            </Wrapper>
+          );
+        })}
       </div>
     </section>
   );
-};
+}
 
-export default FAQSection;
+/** Plus that turns into a minus: the vertical bar rotates flat when open. */
+function PlusIcon({ open, large }: { open: boolean; large: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cx(
+        'relative block justify-self-end rounded-full border transition-colors duration-[250ms]',
+        large ? 'h-[60px] w-[60px]' : 'h-12 w-12',
+        open ? 'border-navy bg-navy' : 'border-navy/18 bg-transparent'
+      )}
+    >
+      <span
+        className={cx(
+          'absolute left-1/2 top-1/2 h-[1.5px] -translate-x-1/2 -translate-y-1/2',
+          large ? 'w-[14px]' : 'w-[13px]',
+          open ? 'bg-gold-light' : 'bg-navy'
+        )}
+      />
+      <span
+        className={cx(
+          'absolute left-1/2 top-1/2 w-[1.5px] -translate-x-1/2 -translate-y-1/2 transition-transform duration-300',
+          large ? 'h-[14px]' : 'h-[13px]',
+          open ? 'rotate-90 bg-gold-light' : 'bg-navy'
+        )}
+      />
+    </span>
+  );
+}

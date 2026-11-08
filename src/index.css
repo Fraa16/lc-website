@@ -3,13 +3,89 @@
 @tailwind utilities;
 
 @layer base {
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter Tight', sans-serif;
-    font-weight: 700;
+  :root {
+    --navy: #000022;
+    --navy-hover: #11114a;
+    --cream: #f4f3ee;
+    --cream-light: #fbfaf6;
+    --gold-light: #dcc383;
+    --gold: #b68f40;
+    --gold-dark: #7a5c22;
+    --gold-gradient: linear-gradient(140deg, #e3cd93 0%, #c9a65c 100%);
+    --gold-gradient-sm: linear-gradient(140deg, #dcc383, #b68f40);
+    --ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    font-family: 'Inter', sans-serif;
-    font-weight: 400;
+    @apply bg-cream font-sans text-navy antialiased;
+  }
+
+  button,
+  input {
+    font-family: inherit;
+  }
+
+  th,
+  td {
+    padding: 0;
+  }
+
+  th {
+    text-align: left;
+    font-weight: inherit;
+  }
+
+  input::placeholder {
+    color: rgba(0, 0, 34, 0.4);
+  }
+
+  ::selection {
+    background: var(--gold-light);
+    color: var(--navy);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--gold-dark);
+    outline-offset: 3px;
+  }
+
+  .surface-dark :focus-visible {
+    outline-color: var(--gold-light);
+  }
+
+  /* Phones narrower than the 390px mobile design: let long German words break. */
+  @media (max-width: 389px) {
+    body {
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .text-gold-gradient {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 }

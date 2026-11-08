@@ -1,154 +1,210 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Layers, Percent, Heart, Workflow } from 'lucide-react';
+import { useState } from 'react';
+import { useIsDesktop } from '../hooks/useMediaQuery';
+import { cx } from '../lib/cx';
+import { ArrowUpRight } from './ui/icons';
+import { Reveal } from './ui/Reveal';
+import { SectionHeader, anchorClass, containerClass, h2Large, leadClass } from './ui/SectionHeader';
+
+const modules = [
+  {
+    tag: 'Struktur',
+    title: 'Klare Struktur & Transparenz',
+    effect: 'Alles in einem System, für alle nachvollziehbar.',
+    detail:
+      'Alle Benefits in einem strukturierten, verständlichen System. HR, Führungskräfte und Mitarbeitende sehen sofort, was gilt und wie es funktioniert.',
+    detailMobile:
+      'Alle Benefits in einem strukturierten, verständlichen System. HR, Führungskräfte und Mitarbeitende sehen sofort, was gilt.',
+  },
+  {
+    tag: 'Steuer',
+    title: 'Steuerlich optimierte Vorteile',
+    effect: 'Mehr Wirkung pro investiertem Euro.',
+    detail:
+      'Wir nutzen relevante Fördermodelle und Steuervorteile, etwa den Freibetrag für Gesundheitsförderung und steuerfreie Sachbezüge, damit Leistungen budgeteffizient wirken.',
+    detailMobile:
+      'Wir nutzen relevante Fördermodelle und Steuervorteile, etwa den Freibetrag für Gesundheitsförderung und steuerfreie Sachbezüge.',
+  },
+  {
+    tag: 'Gesundheit',
+    title: 'Gesundheits- & Vorsorgeleistungen',
+    effect: 'Weniger Ausfälle, mehr Sicherheit im Team.',
+    detail:
+      'Ein starkes Portfolio aus Gesundheits-, Präventions- und Vorsorgebausteinen, flexibel für jedes Teammitglied nutzbar.',
+    detailMobile:
+      'Ein starkes Portfolio aus Gesundheits-, Präventions- und Vorsorgebausteinen, flexibel für jedes Teammitglied nutzbar.',
+  },
+  {
+    tag: 'Prozess',
+    title: 'Digitale, schlanke Abläufe',
+    effect: 'Kein Zusatzaufwand für HR.',
+    detail:
+      'Von Anmeldung bis Abrechnung laufen die Prozesse digital. Ein- und Austritte, Fristen und Dokumentation übernehmen wir.',
+    detailMobile:
+      'Von Anmeldung bis Abrechnung laufen die Prozesse digital. Ein- und Austritte, Fristen und Dokumentation übernehmen wir.',
+  },
+];
+
+const desktopGrid = 'grid grid-cols-[110px_minmax(0,1.4fr)_minmax(0,1fr)_140px]';
 
 export default function BenefitSystemSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const pillars = [
-    {
-      icon: Layers,
-      title: 'Klare Struktur & Transparenz',
-      description: 'Alle Benefits in einem strukturierten, verständlichen System — für HR, Führungskräfte und Mitarbeitende sofort nachvollziehbar.'
-    },
-    {
-      icon: Percent,
-      title: 'Steuerlich optimierte Vorteile',
-      description: 'Wir nutzen alle relevanten Fördermodelle und Steuervorteile, damit Leistungen maximal wirksam und budgeteffizient eingesetzt werden.'
-    },
-    {
-      icon: Heart,
-      title: 'Moderne Gesundheits- & Vorsorgeleistungen',
-      description: 'Ein starkes Portfolio aus Gesundheits-, Präventions- und Vorsorgebausteinen — flexibel für jedes Teammitglied nutzbar.'
-    },
-    {
-      icon: Workflow,
-      title: 'Digitale & schlanke Prozesse',
-      description: 'Von Anmeldung bis Abrechnung: Digitale Abläufe reduzieren den Aufwand für HR und steigern die Nutzung durch Mitarbeitende.'
-    }
-  ];
-
-  const handleCTAClick = () => {
-    const contactSection = document.getElementById('contact-form-section');
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const desktop = useIsDesktop();
+  const [open, setOpen] = useState(-1);
+  const toggle = (i: number) => setOpen((cur) => (cur === i ? -1 : i));
 
   return (
     <section
-      ref={sectionRef}
-      id="benefit-system"
-      className="bg-[#F4F3EE] py-20 md:py-28"
+      id="system"
+      tabIndex={-1}
+      aria-labelledby="system-title"
+      className={cx(anchorClass, 'surface-dark mt-[88px] bg-navy text-cream lg:mt-[clamp(96px,10vw,144px)]')}
     >
-      <div className="mx-auto max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px] px-6 md:px-8">
-        {/* Header Area */}
-        <div className="mb-16 md:mb-20">
-          <div
-            className={`transition-all duration-700 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <span className="inline-block text-[#B68F40] text-xs md:text-sm font-medium uppercase tracking-wider mb-4">
-              Das moderne Benefit-System
-            </span>
+      <div className={cx(containerClass, 'py-20 lg:py-[clamp(96px,10vw,136px)]')}>
+        <SectionHeader
+          eyebrow="Das Benefit-System"
+          titleId="system-title"
+          title="Ein System. Vier Bausteine."
+          titleClassName={cx(h2Large, 'text-[44px]')}
+          dark
+        >
+          {desktop ? (
+            <div className="flex flex-col items-start gap-6">
+              <p className={cx(leadClass, 'text-cream/72')}>
+                Wir verbinden die wirkungsvollsten Gesundheits- und Vorsorgeleistungen: klar
+                strukturiert, steuerlich optimiert, nachhaltig wirksam.
+              </p>
+              <span className="flex h-11 items-center gap-2.5 rounded-full border border-cream/20 px-5 text-[13px] font-semibold uppercase leading-none tracking-[0.08em]">
+                <span aria-hidden="true" className="h-2 w-2 rounded-full bg-gold-light" />
+                04 Bausteine · ein Ansprechpartner
+              </span>
+            </div>
+          ) : (
+            <p className={cx(leadClass, 'text-cream/72')}>
+              Gesundheits- und Vorsorgeleistungen, klar strukturiert, steuerlich optimiert und
+              nachhaltig wirksam.
+            </p>
+          )}
+        </SectionHeader>
+
+        {desktop ? (
+          <div className="mt-20">
+            <div
+              aria-hidden="true"
+              className={cx(
+                desktopGrid,
+                'border-b border-cream/14 px-8 pb-5 text-[12px] font-semibold uppercase leading-none tracking-[0.08em] text-cream/50'
+              )}
+            >
+              <span className="text-gold-light">Nr.</span>
+              <span>Baustein</span>
+              <span>Was er bewirkt</span>
+              <span className="text-right">Details</span>
+            </div>
+
+            {modules.map((m, i) => {
+              const isOpen = open === i;
+              return (
+                <Reveal
+                  key={m.title}
+                  className={cx(
+                    'border-b border-cream/14 transition-colors duration-[250ms]',
+                    isOpen ? 'bg-cream/5' : 'hover:bg-cream/4'
+                  )}
+                >
+                  <h3>
+                    <button
+                      type="button"
+                      id={`system-trigger-${i}`}
+                      aria-expanded={isOpen}
+                      aria-controls={`system-panel-${i}`}
+                      onClick={() => toggle(i)}
+                      className={cx(desktopGrid, 'w-full items-center px-8 py-11 text-left text-cream')}
+                    >
+                      <span className="text-[36px] font-medium leading-none tracking-[-0.04em] text-gold-light">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span className="flex flex-col gap-2.5">
+                        <span className="text-[12px] font-semibold uppercase leading-none tracking-[0.08em] text-cream/50">
+                          {m.tag}
+                        </span>
+                        <span className="text-[clamp(28px,2.6vw,38px)] font-medium leading-[1.05] tracking-[-0.04em]">
+                          {m.title}
+                        </span>
+                      </span>
+                      <span className="pr-6 text-[18px] font-normal leading-[1.45] text-cream/72">{m.effect}</span>
+                      <span className="flex items-center justify-end gap-[14px] text-[13px] font-semibold leading-none tracking-[0.08em]">
+                        MEHR
+                        <span
+                          className={cx(
+                            'flex h-[52px] w-[52px] items-center justify-center rounded-full border border-gold-light/45 transition-transform duration-300',
+                            isOpen && 'rotate-90'
+                          )}
+                        >
+                          <ArrowUpRight className="text-gold-light" />
+                        </span>
+                      </span>
+                    </button>
+                  </h3>
+                  <div
+                    id={`system-panel-${i}`}
+                    role="region"
+                    aria-labelledby={`system-trigger-${i}`}
+                    hidden={!isOpen}
+                  >
+                    <p className="m-0 max-w-[900px] pb-11 pl-[142px] pr-[172px] text-[17px] leading-[1.6] text-cream/78">
+                      {m.detail}
+                    </p>
+                  </div>
+                </Reveal>
+              );
+            })}
           </div>
-
-          <h1
-            className={`text-4xl sm:text-5xl lg:text-3xl xl:text-4xl font-bold text-[#000022] leading-tight mb-6 transition-all duration-700 delay-100 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Ein System, das für jedes Unternehmen funktioniert.
-          </h1>
-
-          <p
-            className={`text-base sm:text-lg lg:text-xl text-[#000022]/80 leading-relaxed max-w-4xl transition-all duration-700 delay-200 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Wir verbinden die wirkungsvollsten Gesundheits- und Vorsorgeleistungen in einem System — klar strukturiert, steuerlich optimiert und nachhaltig wirksam.
-          </p>
-        </div>
-
-        {/* System Pillars - 2x2 Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mb-16 md:mb-20">
-          {pillars.map((pillar, index) => {
-            const Icon = pillar.icon;
-            return (
-              <div
-                key={index}
-                className={`group relative bg-white border border-[#000022]/10 rounded-2xl lg:rounded-3xl p-8 lg:p-10 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#B68F40]/50 hover:shadow-2xl hover:shadow-[#B68F40]/10 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: `${300 + index * 120}ms` }}
-              >
-                {/* Premium Badge Line */}
-                <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-[#DCC383]/40 to-transparent"></div>
-
-                {/* Icon Container */}
-                <div className="mb-6">
-                  <div className="inline-flex items-center justify-center w-14 h-14 lg:w-16 lg:h-16 rounded-xl bg-gradient-to-br from-[#B68F40]/20 to-[#DCC383]/20 border border-[#DCC383]/30 transition-all duration-300 group-hover:border-[#DCC383]/50 group-hover:shadow-lg group-hover:shadow-[#DCC383]/20">
-                    <Icon className="w-7 h-7 lg:w-8 lg:h-8 text-[#B68F40]" strokeWidth={1.5} />
+        ) : (
+          <div className="mt-8 border-t border-cream/14">
+            {modules.map((m, i) => {
+              const isOpen = open === i;
+              return (
+                <div key={m.title} className="border-b border-cream/14">
+                  <h3>
+                    <button
+                      type="button"
+                      id={`system-trigger-m-${i}`}
+                      aria-expanded={isOpen}
+                      aria-controls={`system-panel-m-${i}`}
+                      onClick={() => toggle(i)}
+                      className="grid w-full grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-2 py-6 text-left text-cream"
+                    >
+                      <span className="text-[24px] font-medium leading-none tracking-[-0.04em] text-gold-light">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span className="flex flex-col gap-1.5">
+                        <span className="text-[11px] font-semibold uppercase leading-none tracking-[0.08em] text-cream/50">
+                          {m.tag}
+                        </span>
+                        <span className="text-[21px] font-medium leading-[1.15] tracking-[-0.03em]">{m.title}</span>
+                      </span>
+                      <span
+                        className={cx(
+                          'flex h-11 w-11 items-center justify-center rounded-full border border-gold-light/45 transition-transform duration-300',
+                          isOpen && 'rotate-90'
+                        )}
+                      >
+                        <ArrowUpRight size={13} className="text-gold-light" />
+                      </span>
+                    </button>
+                  </h3>
+                  <div
+                    id={`system-panel-m-${i}`}
+                    role="region"
+                    aria-labelledby={`system-trigger-m-${i}`}
+                    hidden={!isOpen}
+                  >
+                    <p className="m-0 pb-6 pl-14 text-[16px] leading-[1.55] text-cream/78">{m.detailMobile}</p>
                   </div>
                 </div>
-
-                {/* Title */}
-                <h3 className="text-xl lg:text-2xl font-bold text-[#000022] mb-4 leading-tight">
-                  {pillar.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-sm lg:text-base text-[#000022]/80 leading-relaxed">
-                  {pillar.description}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* CTA Area */}
-        <div
-          className={`text-center max-w-3xl mx-auto transition-all duration-700 delay-500 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#000022] mb-4">
-            Bereit für ein funktionierendes Benefit-System?
-          </h3>
-
-          <p className="text-base sm:text-lg text-[#000022]/70 mb-8 leading-relaxed">
-            Wir analysieren Ihre aktuelle Situation kostenlos und zeigen konkrete Potenziale auf.
-          </p>
-
-          <button
-            onClick={handleCTAClick}
-            className="inline-flex items-center justify-center px-8 py-4 text-base lg:text-lg font-semibold text-white bg-gradient-to-r from-[#B68F40] to-[#DCC383] rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#DCC383]/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#DCC383]/50 focus:ring-offset-2 focus:ring-offset-[#F4F3EE]"
-          >
-            Jetzt kostenlose Analyse sichern
-          </button>
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );

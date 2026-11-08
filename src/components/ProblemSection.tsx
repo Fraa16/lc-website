@@ -1,172 +1,203 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Layers, FileText, Users, EyeOff, Percent } from 'lucide-react';
+import { useIsDesktop } from '../hooks/useMediaQuery';
+import { cx } from '../lib/cx';
+import { scrollToSection } from '../lib/scroll';
+import { ArrowUpRight, EyeOff, FileText, Layers, PercentLarge, Users } from './ui/icons';
+import { Reveal } from './ui/Reveal';
+import {
+  SectionHeader,
+  anchorClass,
+  containerClass,
+  kickerClass,
+  leadClass,
+  sectionSpacing,
+} from './ui/SectionHeader';
 
-interface ProblemCard {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-}
+const fields = [
+  {
+    icon: Layers,
+    // Soft hyphens (­) mirror the design's manual break points.
+    title: 'Zu viel Komplexität',
+    text: 'Tarife, Anbieter, Fristen: Jedes Benefit-Projekt kostet mehr Zeit und Budget als geplant.',
+  },
+  {
+    icon: FileText,
+    title: 'Hoher Verwaltungs­aufwand',
+    text: 'HR und Geschäftsführung pflegen Excel-Listen, statt zu führen.',
+  },
+  {
+    icon: Users,
+    title: 'Fehlende Attraktivität',
+    text: 'Benefits sind da, aber kaum sichtbar oder am Bedarf des Teams vorbei.',
+  },
+  {
+    icon: EyeOff,
+    title: 'Keine Transparenz',
+    text: 'Mitarbeitende wissen nicht, was ihnen zusteht und wie sie es abrufen.',
+  },
+  {
+    icon: PercentLarge,
+    title: 'Ungenutzte Steuer­vorteile',
+    text: 'Förderungen und Freibeträge bleiben liegen. Geld, das im Unternehmen bleiben könnte.',
+  },
+];
 
 export default function ProblemSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    e.preventDefault();
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  const problems: ProblemCard[] = [
-    {
-      icon: Layers,
-      title: 'Zu viel Komplexität',
-      description: 'Tarife, Anbieter, Fristen – ohne klares System kostet jedes Benefit-Projekt mehr Zeit, Nerven und Budget als geplant.'
-    },
-    {
-      icon: FileText,
-      title: 'Hoher Administrationsaufwand',
-      description: 'HR und Geschäftsführung hängen in Excel-Listen fest, statt sich auf Strategie und Führung zu konzentrieren.'
-    },
-    {
-      icon: Users,
-      title: 'Fehlende Attraktivität im Wettbewerb',
-      description: 'Benefits sind vorhanden, aber wenig sichtbar oder nicht auf die Bedürfnisse der Mitarbeitenden abgestimmt.'
-    },
-    {
-      icon: EyeOff,
-      title: 'Keine Transparenz für Mitarbeitende',
-      description: 'Mitarbeitende wissen nicht, was ihnen zusteht, wo sie Leistungen abrufen oder welche Vorteile tatsächlich bestehen.'
-    },
-    {
-      icon: Percent,
-      title: 'Keine steuerliche Optimierung',
-      description: 'Potenziale aus Förderungen und steuerlichen Vorteilen bleiben ungenutzt – Geld, das im Unternehmen liegen bleibt.'
-    }
-  ];
+  const desktop = useIsDesktop();
 
   return (
     <section
-      ref={sectionRef}
-      id="problem-section"
-      className="bg-[#000022] py-20 md:py-24"
+      id="herausforderung"
+      tabIndex={-1}
+      aria-labelledby="herausforderung-title"
+      className={cx(anchorClass, containerClass, sectionSpacing)}
     >
-      <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 xl:gap-20">
-          {/* Left Column - Text Content */}
-          <div className="space-y-6 lg:space-y-8">
-            {/* Label */}
-            <div
-              className={`transition-all duration-700 delay-100 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
-              <span className="inline-block text-[#DCC383] text-xs md:text-sm font-medium uppercase tracking-wider">
-                Was Unternehmen heute herausfordert
-              </span>
-            </div>
-
-            {/* Headline */}
-            <div
-              className={`space-y-2 transition-all duration-700 delay-200 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
-              <h2 className="text-lg sm:text-xl lg:text-xl xl:text-2xl font-normal bg-gradient-to-r from-[#B68F40] to-[#DCC383] bg-clip-text text-transparent leading-relaxed">
-                Benefits sind relevanter denn je.
-              </h2>
-              <h1 className="text-4xl sm:text-5xl lg:text-3xl xl:text-4xl font-bold text-[#F4F3EE] leading-[1.1]">
-                Doch kaum ein Unternehmen hat ein funktionierendes System.
-              </h1>
-            </div>
-
-            {/* Supporting Paragraph */}
-            <p
-              className={`text-base sm:text-lg text-[#F4F3EE]/80 leading-relaxed max-w-xl transition-all duration-700 delay-300 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
-              Viele Unternehmen wissen, dass attraktive Benefits die Mitarbeiterbindung, Gesundheit und Produktivität steigern. In der Praxis scheitert es jedoch oft an Zeit, Know-how und der richtigen Struktur – aus guten Ideen wird kein verlässliches System.
+      <SectionHeader
+        eyebrow="Die Ausgangslage"
+        titleId="herausforderung-title"
+        title="Benefits sind relevanter denn je. Ein System dahinter haben die wenigsten."
+        align="start"
+      >
+        {desktop ? (
+          <div className="flex flex-col gap-[18px] pt-11">
+            <p className={cx(leadClass, 'text-navy/68')}>
+              Viele Unternehmen wissen, dass Benefits Bindung, Gesundheit und Produktivität stärken.
+              In der Praxis fehlt es an Zeit, Know-how und Struktur.
             </p>
-
-            {/* CTA Button */}
-            <div
-              className={`flex pt-2 transition-all duration-700 delay-400 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
-              <a
-                href="#contact-form-section"
-                onClick={(e) => handleScroll(e, 'contact-form-section')}
-                className="group relative inline-flex items-center justify-center px-8 py-3.5 bg-gradient-to-r from-[#B68F40] to-[#DCC383] text-[#000022] font-semibold text-base rounded-lg shadow-lg overflow-hidden transition-all duration-300 ease-out hover:shadow-2xl hover:shadow-[#B68F40]/40 hover:scale-[1.03] focus:outline-none focus:ring-4 focus:ring-[#B68F40]/50 active:scale-[0.98]"
-                aria-label="Kostenlose Analyse anfordern"
-              >
-                <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-300 ease-out pointer-events-none" />
-                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
-                <span className="relative z-10 transition-all duration-300 ease-out group-hover:tracking-wide pointer-events-none">
-                  Kostenlose Analyse anfordern
-                </span>
-              </a>
-            </div>
+            <span className={kickerClass}>— Fünf Felder, die wir in jedem Erstgespräch prüfen</span>
           </div>
+        ) : (
+          <p className={cx(leadClass, 'text-navy/68')}>
+            In der Praxis fehlt es an Zeit, Know-how und Struktur. Fünf Felder, die wir in jedem
+            Erstgespräch prüfen:
+          </p>
+        )}
+      </SectionHeader>
 
-          {/* Right Column - Problem Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5 content-start">
-            {problems.map((problem, index) => {
-              const Icon = problem.icon;
-              return (
-                <div
-                  key={index}
-                  className={`transition-all duration-700 ${
-                    isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                  } ${index === 4 ? 'sm:col-span-2 sm:max-w-md sm:mx-auto' : ''}`}
-                  style={{ transitionDelay: `${500 + index * 80}ms` }}
-                >
-                  <div className="group relative bg-[#05052F] border border-white/6 rounded-2xl p-5 md:p-6 h-full transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-[#B68F40]/40 hover:shadow-lg hover:shadow-[#B68F40]/10">
-                    {/* Icon */}
-                    <div className="mb-4">
-                      <Icon className="w-6 h-6 text-[#DCC383]" strokeWidth={1.5} />
-                    </div>
-
-                    {/* Title */}
-                    <h4 className="text-lg font-semibold text-[#F4F3EE] mb-2.5 leading-snug">
-                      {problem.title}
-                    </h4>
-
-                    {/* Description */}
-                    <p className="text-sm text-[#F4F3EE]/70 leading-relaxed">
-                      {problem.description}
-                    </p>
-                  </div>
+      {desktop ? (
+        <ol className="mt-[72px] grid grid-cols-5">
+          {fields.map(({ icon: Icon, title, text }, i) => (
+            <li key={title} className="contents">
+              <Reveal
+                className={cx(
+                  'flex flex-col gap-[18px]',
+                  i === 0 && 'pr-[clamp(16px,2vw,28px)]',
+                  i > 0 && i < fields.length - 1 && 'border-l border-navy/12 px-[clamp(16px,2vw,28px)]',
+                  i === fields.length - 1 && 'border-l border-navy/12 pl-[clamp(16px,2vw,28px)]'
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[14px] font-semibold leading-none text-gold-dark">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <Icon className="text-navy" />
                 </div>
-              );
-            })}
+                <h3
+                  lang="de"
+                  className="mt-2 hyphens-auto break-words text-[clamp(20px,2vw,26px)] font-medium leading-[1.08] tracking-[-0.035em]"
+                >
+                  {title}
+                </h3>
+                <p className="m-0 text-[15px] leading-[1.5] text-navy/64 max-xl:hyphens-auto">{text}</p>
+              </Reveal>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <ol className="mt-8 flex flex-col">
+          {fields.map(({ title, text }, i) => (
+            <li
+              key={title}
+              className="grid grid-cols-[44px_minmax(0,1fr)] gap-x-0 gap-y-1 border-t border-navy/12 py-[22px]"
+            >
+              <span className="text-[14px] font-semibold leading-[1.6] text-gold-dark">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3 className="text-[22px] font-medium leading-[1.15] tracking-[-0.03em]">
+                {title.replace('­', '')}
+              </h3>
+              <span />
+              <p className="mt-1.5 text-[16px] leading-[1.5] text-navy/64">{text}</p>
+            </li>
+          ))}
+        </ol>
+      )}
+
+      <ConsequencesCard desktop={desktop} />
+    </section>
+  );
+}
+
+const consequences = [
+  ['Steigende Fehlzeiten und Produktivitätsverlust', 'Steigende Fehlzeiten, sinkende Produktivität'],
+  ['Nachteil im Wettbewerb um Fachkräfte', 'Nachteil im Wettbewerb um Fachkräfte'],
+  ['Geringere Bindung, höhere Fluktuation', 'Geringere Bindung, höhere Fluktuation'],
+  ['Ungenutzte Förderungen und Steuervorteile', 'Ungenutzte Förderungen und Steuervorteile'],
+];
+
+function ConsequencesCard({ desktop }: { desktop: boolean }) {
+  return (
+    <Reveal className="surface-dark mt-12 overflow-hidden rounded-[28px] bg-navy text-cream lg:mt-[88px] lg:rounded-[32px]">
+      <div className="flex items-center justify-between gap-4 border-b border-cream/10 px-[22px] py-[18px] text-[11px] font-semibold uppercase leading-[1.3] tracking-[0.08em] lg:px-10 lg:py-6 lg:text-[13px] lg:leading-none">
+        <span className="text-gold-light">Wenn nichts passiert</span>
+        {desktop ? (
+          <span className="flex items-center gap-2.5">
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-gold-light" />
+            Jeder Fehltag ≈ 144 € Produktionsausfall · BAuA
+          </span>
+        ) : (
+          <span className="text-right">≈ 144 € je Fehltag · BAuA</span>
+        )}
+      </div>
+
+      <div className="lg:grid lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-start lg:gap-[clamp(32px,5vw,80px)] lg:px-10 lg:pb-10 lg:pt-14">
+        <div className="flex flex-col gap-[18px] px-[22px] pb-[22px] pt-[30px] lg:gap-6 lg:p-0 lg:pt-2">
+          <h2 className="m-0 text-[40px] font-medium leading-[0.98] tracking-[-0.05em] lg:text-[clamp(44px,4.8vw,72px)]">
+            Stillstand wird teuer.
+          </h2>
+          <p className="m-0 max-w-[560px] text-[17px] leading-[1.55] text-cream/76 lg:text-[19px]">
+            {desktop
+              ? 'Fehlende Struktur bei Gesundheits- und Vorsorgeleistungen führt zu messbaren Nachteilen, für das Unternehmen und das ganze Team.'
+              : 'Fehlende Struktur führt zu messbaren Nachteilen, für das Unternehmen und das ganze Team.'}
+          </p>
+          <div>
+            <button
+              type="button"
+              onClick={() => scrollToSection('termin')}
+              className="mt-1.5 flex h-14 w-full items-center justify-between gap-3 rounded-full bg-cream pl-6 pr-[22px] text-[17px] font-medium leading-none text-navy transition-colors hover:bg-white sm:w-auto lg:mt-3 lg:inline-flex lg:pl-7 lg:pr-6"
+            >
+              Potenzial prüfen lassen
+              <ArrowUpRight className="text-gold-dark" />
+            </button>
           </div>
         </div>
+
+        <div className="mx-2.5 mb-2.5 rounded-[20px] bg-gold-gradient px-5 pb-1.5 pt-5 text-navy lg:m-0 lg:rounded-[26px] lg:px-8 lg:pb-3 lg:pt-[30px]">
+          <div className="flex items-center justify-between border-b border-navy/16 pb-[14px] lg:pb-5">
+            <span className="text-[12px] font-semibold uppercase leading-none tracking-[0.08em] lg:text-[13px]">
+              Die Folgen
+            </span>
+            <span className="text-[24px] font-medium leading-none tracking-[-0.04em] lg:text-[32px]">04</span>
+          </div>
+          <ol>
+            {consequences.map(([long, short], i) => (
+              <li
+                key={long}
+                className={cx(
+                  'grid grid-cols-[44px_minmax(0,1fr)] items-center py-4 lg:grid-cols-[56px_minmax(0,1fr)] lg:py-5',
+                  i < consequences.length - 1 && 'border-b border-navy/16'
+                )}
+              >
+                <span className="text-[22px] font-medium leading-none tracking-[-0.04em] lg:text-[30px]">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="text-[16px] font-medium leading-[1.35] lg:text-[17px]">
+                  {desktop ? long : short}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
-    </section>
+    </Reveal>
   );
 }

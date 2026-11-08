@@ -1,152 +1,130 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import smImg from '../images/sm.jpg';
-import sm2Img from '../images/sm-2.jpg';
 import sm1Img from '../images/sm-1.jpg';
+import sm2Img from '../images/sm-2.jpg';
+import { useIsDesktop } from '../hooks/useMediaQuery';
+import { cx } from '../lib/cx';
+import { pad2 } from '../lib/format';
+import { ArrowLeft, ArrowRight } from './ui/icons';
+import { Reveal } from './ui/Reveal';
+import { SectionHeader, anchorClass, containerClass, leadClass, sectionSpacing } from './ui/SectionHeader';
 
-interface Testimonial {
-  name: string;
-  role: string;
-  quote: string;
-  image: string;
-}
-
-const testimonials: Testimonial[] = [
+// Verbatim excerpts from the original client testimonials.
+const testimonials = [
   {
+    quote:
+      'Cedrik überzeugt durch eine herausragende Beratung, hohe Kundenorientierung und tiefes Fachwissen.',
     name: 'Winsome Okafor',
     role: 'Lehrerin',
-    quote:
-      'Cedrik überzeugt durch eine herausragende Beratung, hohe Kundenorientierung und tiefes Fachwissen. Seine Vertrauenswürdigkeit und Zuverlässigkeit machen ihn zu einem idealen Ansprechpartner für alle, die eine professionelle und individuelle Beratung suchen. Kleine Extras wie eine regelmäßige Überprüfung der bestehenden Verträge zeigen, dass er auch langfristig an einer optimalen Absicherung seiner Kunden interessiert ist.',
     image: smImg,
   },
   {
+    quote:
+      'Dank der Beratung von Herrn Leibinn konnte ich mich voll und ganz auf mein Kerngeschäft konzentrieren.',
     name: 'Tom Müller',
     role: 'Selbstständiger Tätowierer',
-    quote:
-      'Dank der Beratung von Herrn Leibinn konnte ich mich voll und ganz auf mein Kerngeschäft konzentrieren, ohne mir Sorgen um meinen Vermögensaufbau machen zu müssen. Als Selbstständiger ist Zeit für mich das wertvollste Gut, und durch die klaren, effizienten Strategien, die er für mich entwickelt hat, wurde mein finanzieller Fortschritt gesichert.',
     image: sm2Img,
   },
   {
+    quote:
+      'Bei meinen Investments und Versicherungen verlasse ich mich voll und ganz auf die Expertise von Herrn Leibinn.',
     name: 'Luka Šilić',
     role: 'Anwalt',
-    quote:
-      'Als Anwalt bin ich es gewohnt, komplexe Sachverhalte zu durchdringen und sichere Entscheidungen zu treffen. Bei meinen Investments und Versicherungen verlasse ich mich deshalb voll und ganz auf die Expertise von Herrn Leibinn. Dank der umfassenden Beratung und maßgeschneiderten Lösungen fühle ich mich bestens abgesichert und weiß, dass meine finanziellen Ziele in guten Händen sind.',
     image: sm1Img,
   },
 ];
 
-const TestimonialsSection = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
+export default function TestimonialsSection() {
+  const desktop = useIsDesktop();
+  const [index, setIndex] = useState(0);
+  const count = testimonials.length;
+  const t = testimonials[index];
 
   return (
-    <section ref={sectionRef} className="bg-[#F4F3EE] py-20 md:py-28">
-      <div className="max-w-7xl xl:max-w-[1280px] 2xl:max-w-[1400px] mx-auto px-6 md:px-8">
-        {/* Label */}
-        <div className="text-center mb-6">
-          <span
-            className={`inline-block text-xs md:text-sm uppercase tracking-wider font-semibold bg-gradient-to-r from-[#B68F40] to-[#DCC383] bg-clip-text text-transparent transition-all duration-700 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Kundenstimmen
+    <section
+      id="stimmen"
+      tabIndex={-1}
+      aria-labelledby="stimmen-title"
+      className={cx(anchorClass, containerClass, sectionSpacing)}
+    >
+      <SectionHeader
+        eyebrow="Kundenstimmen"
+        titleId="stimmen-title"
+        title="Was Kunden über die Zusammenarbeit sagen."
+      >
+        {desktop && (
+          <p className={cx(leadClass, 'text-navy/68')}>
+            Von der Lehrerin bis zum Anwalt: Unsere Kunden schätzen klare, individuelle Beratung.
+          </p>
+        )}
+      </SectionHeader>
+
+      <Reveal
+        role="region"
+        aria-roledescription="Karussell"
+        aria-label="Kundenstimmen"
+        className="surface-dark mt-7 flex min-h-[470px] flex-col rounded-[28px] bg-navy px-[22px] py-6 text-cream lg:mt-14 lg:min-h-[520px] lg:rounded-[32px] lg:p-[clamp(36px,4vw,56px)]"
+      >
+        <div className="flex items-center justify-between">
+          <span className="flex h-9 items-center rounded-full bg-gold-gradient-sm px-4 text-[14px] font-semibold leading-none text-navy lg:h-10 lg:px-[18px] lg:text-[15px]">
+            {pad2(index + 1)} / {pad2(count)}
           </span>
+          <div aria-hidden="true" className="flex gap-1.5 lg:gap-2">
+            {testimonials.map((item, i) => (
+              <span
+                key={item.name}
+                className={cx(
+                  'h-[3px] w-8 rounded-sm transition-colors duration-300 lg:w-14',
+                  i === index ? 'bg-gold-light' : 'bg-cream/20'
+                )}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Headlines */}
-        <div className="text-center mb-4 space-y-2">
-          <h2
-            className={`text-3xl sm:text-4xl lg:text-5xl font-normal text-[#000022] leading-tight transition-all duration-700 delay-100 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Was unsere Kunden sagen.
-          </h2>
-          <h3
-            className={`text-3xl sm:text-4xl lg:text-5xl font-semibold bg-gradient-to-r from-[#B68F40] to-[#DCC383] bg-clip-text text-transparent leading-tight transition-all duration-700 delay-200 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            Echte Ergebnisse. Echte Menschen.
-          </h3>
-        </div>
+        <figure className="m-0 flex flex-1 flex-col" aria-live="polite" aria-atomic="true">
+          <blockquote className="m-0 mt-9 lg:mt-14">
+            <p className="max-w-[1060px] text-pretty text-[28px] font-medium leading-[1.14] tracking-[-0.035em] lg:text-[clamp(32px,3.6vw,54px)] lg:leading-[1.08] lg:tracking-[-0.04em]">
+              „{t.quote}“
+            </p>
+          </blockquote>
 
-        {/* Subtext */}
-        <p
-          className={`text-base md:text-lg text-[#000022]/80 leading-relaxed max-w-2xl mx-auto text-center mb-16 transition-all duration-700 delay-300 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          Von der Lehrerin bis zum Anwalt – unsere Kunden kommen aus unterschiedlichen Lebenssituationen und haben eines gemeinsam: Sie vertrauen auf klare, individuelle Beratung.
-        </p>
+          <div className="mt-auto flex items-center justify-between gap-3 pt-8 lg:items-end lg:pt-14">
+            <figcaption className="flex min-w-0 items-center gap-3 lg:gap-4">
+              <img
+                src={t.image}
+                alt=""
+                width={56}
+                height={56}
+                className="block h-12 w-12 flex-none rounded-full object-cover lg:h-14 lg:w-14"
+              />
+              <span className="flex min-w-0 flex-col gap-[5px] lg:gap-1.5">
+                <span className="text-[17px] font-medium leading-[1.1] lg:text-[20px] lg:leading-none">{t.name}</span>
+                <span className="text-[14px] leading-[1.2] text-cream/60 lg:text-[15px] lg:leading-none">{t.role}</span>
+              </span>
+            </figcaption>
 
-        {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {testimonials.map((t, index) => (
-            <div
-              key={index}
-              className={`bg-white rounded-2xl border border-[#B68F40]/20 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:ring-1 hover:ring-[#B68F40]/40 transition-all duration-300 flex flex-col ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-              style={{ transitionDelay: `${400 + index * 150}ms` }}
-            >
-              {/* Quote mark */}
-              <div className="px-8 pt-8 pb-0">
-                <span
-                  className="block text-6xl font-serif leading-none bg-gradient-to-r from-[#B68F40] to-[#DCC383] bg-clip-text text-transparent select-none"
-                  aria-hidden="true"
-                >
-                  &ldquo;
-                </span>
-              </div>
-
-              {/* Quote body */}
-              <div className="px-8 pt-2 pb-6 flex-1">
-                <p className="text-sm md:text-base text-[#000022]/75 leading-relaxed">
-                  {t.quote}
-                </p>
-              </div>
-
-              {/* Divider */}
-              <div className="mx-8 h-px bg-gradient-to-r from-[#B68F40]/30 to-[#DCC383]/10" />
-
-              {/* Author */}
-              <div className="px-8 py-6 flex items-center gap-4">
-                <img
-                  src={t.image}
-                  alt={t.name}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-[#B68F40]/30 flex-shrink-0"
-                />
-                <div>
-                  <p className="text-sm font-semibold text-[#000022]">{t.name}</p>
-                </div>
-              </div>
+            <div className="flex flex-none gap-2 lg:gap-3">
+              <button
+                type="button"
+                onClick={() => setIndex((i) => (i + count - 1) % count)}
+                aria-label="Vorherige Stimme"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-cream/22 bg-cream/6 text-cream transition-colors hover:bg-cream/12 lg:h-[60px] lg:w-[60px]"
+              >
+                <ArrowLeft size={desktop ? 18 : 16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIndex((i) => (i + 1) % count)}
+                aria-label="Nächste Stimme"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-gold-gradient-sm text-navy transition-opacity hover:opacity-90 lg:h-[60px] lg:w-[60px]"
+              >
+                <ArrowRight size={desktop ? 18 : 16} />
+              </button>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </figure>
+      </Reveal>
     </section>
   );
-};
-
-export default TestimonialsSection;
+}
