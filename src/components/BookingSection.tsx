@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 import { cx } from '../lib/cx';
+import { calendlyUrl } from '../lib/consent';
 import { pad2 } from '../lib/format';
 import { Calendar } from './ui/icons';
 import { Reveal } from './ui/Reveal';
@@ -103,6 +104,8 @@ function embedSrc(url: string) {
 function BookingCard({ desktop }: { desktop: boolean }) {
   const [loaded, setLoaded] = useState(false);
   const [height, setHeight] = useState(700);
+  // Built once when the calendar loads (campaign + source tag), so re-renders never reload the iframe.
+  const src = useMemo(() => (loaded ? embedSrc(calendlyUrl(CALENDLY_URL)) : ''), [loaded]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -130,7 +133,7 @@ function BookingCard({ desktop }: { desktop: boolean }) {
       {loaded ? (
         <div className="-mx-3 mt-4 lg:mx-0 lg:mt-6">
           <iframe
-            src={embedSrc(CALENDLY_URL)}
+            src={src}
             title="Erstgespräch mit Cedrik Leibinn buchen"
             className="block w-full rounded-[14px] border-0"
             style={{ height }}

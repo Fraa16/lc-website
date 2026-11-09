@@ -47,6 +47,9 @@ from 900px the desktop design (content max-width 1280px).
   (`https://calendly.com/beratung-leibinn-consulting/60min`, the same link on every
   Leibinn site) behind a click-to-load consent step: nothing is requested from
   Calendly before the visitor clicks "Kalender laden". `VITE_CALENDLY_URL` can override it.
+  The link carries the visitor's campaign (`utm_*`) and a source tag, and a completed
+  booking is reported to the lead service, so it appears in the lead overview with
+  "LP2" and its campaign.
 - **Callback ("Rückruf") in the footer:** sent to the central lead service
   ([Fraa16/leibinn-leads](https://github.com/Fraa16/leibinn-leads)), which stores it in the
   shared database and emails the team. Set `VITE_LEADS_API_URL` in Vercel.
