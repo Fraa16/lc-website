@@ -89,3 +89,39 @@
     color: transparent;
   }
 }
+
+/* Cookie banner (vanilla-cookieconsent) in lp2's tokens. */
+#cc-main {
+  --cc-font-family: 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif;
+  --cc-bg: #fbfaf6;
+  --cc-primary-color: #000022;
+  --cc-secondary-color: rgba(0, 0, 34, 0.68);
+  --cc-btn-primary-bg: #000022;
+  --cc-btn-primary-color: #f4f3ee;
+  --cc-btn-primary-border-color: #000022;
+  --cc-btn-primary-hover-bg: #11114a;
+  --cc-btn-primary-hover-color: #f4f3ee;
+  --cc-btn-primary-hover-border-color: #11114a;
+  --cc-btn-secondary-bg: #f4f3ee;
+  --cc-btn-secondary-color: #000022;
+  --cc-btn-secondary-border-color: rgba(0, 0, 34, 0.18);
+  --cc-btn-secondary-hover-bg: #ffffff;
+  --cc-btn-secondary-hover-color: #000022;
+  --cc-btn-secondary-hover-border-color: rgba(0, 0, 34, 0.3);
+  --cc-btn-border-radius: 999px;
+  --cc-modal-border-radius: 24px;
+  --cc-separator-border-color: rgba(0, 0, 34, 0.12);
+  --cc-toggle-on-bg: #000022;
+  --cc-toggle-off-bg: rgba(0, 0, 34, 0.3);
+  --cc-toggle-readonly-bg: rgba(0, 0, 34, 0.18);
+  --cc-cookie-category-block-bg: #f4f3ee;
+  --cc-cookie-category-block-border: rgba(0, 0, 34, 0.1);
+  --cc-cookie-category-block-hover-bg: #efede6;
+  --cc-cookie-category-block-hover-border: rgba(0, 0, 34, 0.14);
+  --cc-cookie-category-expanded-block-bg: #fbfaf6;
+  --cc-footer-bg: #f4f3ee;
+  --cc-footer-color: rgba(0, 0, 34, 0.68);
+  --cc-footer-border-color: rgba(0, 0, 34, 0.1);
+  --cc-link-color: #7a5c22;
+  --cc-overlay-bg: rgba(0, 0, 34, 0.5);
+}

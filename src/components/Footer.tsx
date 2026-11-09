@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useIsDesktop } from '../hooks/useMediaQuery';
-import { submitCallback } from '../lib/callback';
+import { submitLead } from '../lib/consent';
 import { cx } from '../lib/cx';
 import { scrollToSection, type SectionId } from '../lib/scroll';
 import { ArrowUpRight, Check } from './ui/icons';
@@ -75,6 +75,13 @@ export default function Footer() {
                   {label}
                 </a>
               ))}
+              <button
+                type="button"
+                data-cookie-settings
+                className="text-left text-cream transition-colors hover:text-gold-light"
+              >
+                Cookie-Einstellungen
+              </button>
               <span className="text-[15px] text-cream/50">© {year} Leibinn Consulting</span>
             </div>
           </div>
@@ -101,6 +108,9 @@ export default function Footer() {
                     {label}
                   </a>
                 ))}
+                <button type="button" data-cookie-settings className="h-10 text-left text-[17px] leading-none text-cream">
+                  Cookie-Einstellungen
+                </button>
               </div>
             </div>
             <div className="py-5 text-[13px] leading-none text-cream/50">© {year} Leibinn Consulting</div>
@@ -132,6 +142,7 @@ function ColumnTitle({ children, mobile = false }: { children: string; mobile?: 
 
 function CallbackCard({ desktop }: { desktop: boolean }) {
   const [tel, setTel] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(false);
@@ -142,7 +153,8 @@ function CallbackCard({ desktop }: { desktop: boolean }) {
     setSending(true);
     setError(false);
     try {
-      await submitCallback(tel);
+      // Central lead service: stored in the shared database and emailed to the team.
+      await submitLead({ form: 'rueckruf', telefon: tel, website: honeypot });
       setSent(true);
     } catch (err) {
       console.error('Callback request failed', err);
@@ -187,6 +199,17 @@ function CallbackCard({ desktop }: { desktop: boolean }) {
             placeholder="Ihre Telefonnummer"
             aria-label="Telefonnummer für Rückruf"
             className="min-w-0 flex-1 border-0 bg-transparent text-[16px] leading-none text-navy outline-none focus-visible:outline-none"
+          />
+          {/* Honeypot: invisible to people, filled in by bots. */}
+          <input
+            type="text"
+            name="website"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="absolute -left-[9999px] h-px w-px opacity-0"
           />
           <button
             type="submit"
