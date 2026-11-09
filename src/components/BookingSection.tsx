@@ -1,26 +1,20 @@
-import { useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { useIsDesktop } from '../hooks/useMediaQuery';
-import { EMAIL_PATTERN, submitBooking, useAvailability, type MeetingMode } from '../lib/booking';
 import { cx } from '../lib/cx';
 import { pad2 } from '../lib/format';
-import { ArrowUpRight, Check } from './ui/icons';
+import { Calendar } from './ui/icons';
 import { Reveal } from './ui/Reveal';
 import { anchorClass } from './ui/SectionHeader';
+
+/** The shared 60-minute event, the same link on every Leibinn site. VITE_CALENDLY_URL overrides it. */
+const CALENDLY_URL =
+  import.meta.env.VITE_CALENDLY_URL?.trim() || 'https://calendly.com/beratung-leibinn-consulting/60min';
 
 const nextSteps = [
   ['Termin wählen', 'Ein Klick, keine Vorbereitung nötig.'],
   ['Gespräch führen', 'Wir klären Ausgangslage, Ziele und Teamgröße.'],
   ['Fahrplan erhalten', 'Sie wissen danach, welche Benefits sich für Sie lohnen.'],
 ];
-
-interface Fields {
-  name: string;
-  email: string;
-  tel: string;
-  firma: string;
-}
-
-const emptyFields: Fields = { name: '', email: '', tel: '', firma: '' };
 
 export default function BookingSection() {
   const desktop = useIsDesktop();
@@ -48,8 +42,8 @@ export default function BookingSection() {
           </h2>
           <p className="mt-4 text-[16px] leading-[1.55] text-cream/72 lg:mt-[26px] lg:max-w-[440px] lg:text-[18px]">
             {desktop
-              ? '30 Minuten per Video oder Telefon. Kostenfrei und unverbindlich, direkt mit Cedrik Leibinn.'
-              : '30 Minuten per Video oder Telefon. Kostenfrei, direkt mit Cedrik Leibinn.'}
+              ? '60 Minuten per Video oder Telefon. Kostenfrei und unverbindlich, direkt mit Cedrik Leibinn.'
+              : '60 Minuten per Video oder Telefon. Kostenfrei, direkt mit Cedrik Leibinn.'}
           </p>
 
           {desktop ? (
@@ -87,297 +81,92 @@ export default function BookingSection() {
   );
 }
 
-function BookingCard({ desktop }: { desktop: boolean }) {
-  const { days, times, weekLabel, isFree } = useAvailability();
-  const [mode, setMode] = useState<MeetingMode>('video');
-  const [day, setDay] = useState<number | null>(null);
-  const [slot, setSlot] = useState<string | null>(null);
-  const [fields, setFields] = useState<Fields>(emptyFields);
-  const [showErrors, setShowErrors] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [sendError, setSendError] = useState(false);
-  const [done, setDone] = useState(false);
-
-  const nameOk = fields.name.trim().length > 0;
-  const emailOk = EMAIL_PATTERN.test(fields.email);
-  const ready = day !== null && slot !== null && nameOk && emailOk;
-
-  const buttonLabel =
-    day === null
-      ? 'Tag wählen'
-      : !slot
-        ? 'Uhrzeit wählen'
-        : ready
-          ? 'Termin verbindlich buchen'
-          : 'Name und E-Mail ergänzen';
-
-  const onField = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFields((f) => ({ ...f, [name]: value }));
-  };
-
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (sending) return;
-    if (!ready) {
-      setShowErrors(true);
-      return;
-    }
-    setSending(true);
-    setSendError(false);
-    try {
-      await submitBooking({
-        name: fields.name,
-        email: fields.email,
-        telefon: fields.tel,
-        firma: fields.firma,
-        mode,
-        day: days[day],
-        time: slot,
-      });
-      setDone(true);
-    } catch (err) {
-      console.error('Booking request failed', err);
-      setSendError(true);
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const reset = () => {
-    setDone(false);
-    setSlot(null);
-    setShowErrors(false);
-  };
-
-  const inputClass = (invalid: boolean) =>
-    cx(
-      'h-[52px] w-full min-w-0 rounded-[14px] border bg-cream-light px-4 text-[16px] leading-none text-navy outline-none transition-colors focus:border-navy/40 lg:h-[54px] lg:px-[18px]',
-      invalid ? 'border-error' : 'border-navy/14'
-    );
-
-  if (done && day !== null && slot) {
-    return (
-      <div className="flex flex-col rounded-[20px] bg-cream px-4 py-[22px] text-navy lg:rounded-[24px] lg:p-[clamp(28px,3vw,44px)]">
-        <div
-          role="status"
-          className="flex flex-1 flex-col justify-center gap-[18px] py-4 lg:gap-[22px] lg:py-6"
-        >
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-navy text-gold-light lg:h-16 lg:w-16">
-            <Check size={desktop ? 26 : 24} strokeWidth={1.6} />
-          </span>
-          <span className="text-[38px] font-medium leading-none tracking-[-0.05em] lg:text-[52px]">
-            Ihr Termin steht.
-          </span>
-          <span className="max-w-[480px] text-[16px] leading-[1.55] text-navy/68 lg:text-[18px]">
-            {days[day].long}, {slot} Uhr per {mode === 'video' ? 'Video-Call' : 'Telefon'}. Die Bestätigung geht
-            an {fields.email}.
-          </span>
-          <div>
-            <button
-              type="button"
-              onClick={reset}
-              className="h-[50px] w-full rounded-full border border-navy/20 px-[22px] text-[15px] font-medium leading-none text-navy transition-colors hover:bg-navy/5 lg:w-auto"
-            >
-              Anderen Termin wählen
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <form
-      noValidate
-      onSubmit={onSubmit}
-      aria-labelledby="booking-title"
-      className="flex flex-col gap-5 rounded-[20px] bg-cream px-4 py-[22px] text-navy lg:gap-[26px] lg:rounded-[24px] lg:p-[clamp(28px,3vw,44px)]"
-    >
-      <div className="flex flex-col gap-5 lg:flex-row lg:flex-wrap lg:items-start lg:justify-between lg:gap-4">
-        <div className="flex items-center justify-between lg:flex-col lg:items-start lg:gap-2.5">
-          <span
-            id="booking-title"
-            className="text-[26px] font-medium leading-none tracking-[-0.04em] lg:text-[34px]"
-          >
-            Termin wählen
-          </span>
-          <span className="text-[14px] leading-none text-navy/60 lg:text-[15px] lg:leading-[1.4]">
-            {desktop ? 'Freie Termine der nächsten Woche' : weekLabel}
-          </span>
-        </div>
-        <div
-          role="group"
-          aria-label="Gesprächsart"
-          className="grid grid-cols-2 gap-1 rounded-full border border-navy/12 p-1"
-        >
-          {(['video', 'phone'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              aria-pressed={mode === m}
-              onClick={() => setMode(m)}
-              className={cx(
-                'h-11 rounded-full text-[15px] font-medium leading-none transition-colors lg:h-[38px] lg:px-[18px] lg:text-[14px]',
-                mode === m ? 'bg-navy text-cream' : 'text-navy hover:bg-navy/5'
-              )}
-            >
-              {m === 'video' ? 'Video' : 'Telefon'}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <fieldset className="m-0 min-w-0 border-0 p-0">
-        <legend className="sr-only">Tag</legend>
-        <div className="grid min-w-0 grid-cols-5 gap-1.5 lg:gap-2">
-          {days.map((d, i) => {
-            const active = day === i;
-            return (
-              <button
-                key={d.iso}
-                type="button"
-                aria-pressed={active}
-                aria-label={d.long}
-                onClick={() => {
-                  setDay(i);
-                  setSlot(null);
-                }}
-                className={cx(
-                  'flex h-16 flex-col items-center justify-center gap-[5px] rounded-[14px] border p-0 transition-colors lg:h-[72px] lg:gap-1.5 lg:rounded-2xl',
-                  active ? 'border-navy bg-navy text-cream' : 'border-navy/12 bg-cream-light text-navy hover:border-navy/30'
-                )}
-              >
-                <span className="text-[11px] font-semibold leading-none tracking-[0.08em] opacity-70 lg:text-[12px]">
-                  {d.weekday}
-                </span>
-                <span className="text-[17px] font-medium leading-none lg:text-[20px] lg:tracking-[-0.02em]">
-                  {desktop ? d.label : d.dayOfMonth}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
-
-      <fieldset className="m-0 min-w-0 border-0 p-0">
-        <legend className="sr-only">Uhrzeit</legend>
-        <div className="grid grid-cols-3 gap-1.5 lg:grid-cols-[repeat(auto-fill,minmax(76px,1fr))] lg:gap-2">
-          {times.map((t, i) => {
-            const free = day === null || isFree(day, i);
-            const active = slot === t;
-            return (
-              <button
-                key={t}
-                type="button"
-                disabled={!free}
-                aria-pressed={active}
-                aria-disabled={day === null || undefined}
-                aria-label={free ? `${t} Uhr` : `${t} Uhr, belegt`}
-                onClick={() => day !== null && setSlot(t)}
-                className={cx(
-                  'h-[46px] rounded-full border text-[15px] font-medium leading-none transition-colors lg:h-12',
-                  active && 'border-navy bg-navy text-gold-light',
-                  !active && free && 'border-navy/12 bg-cream-light text-navy hover:border-navy/30',
-                  !free && 'cursor-not-allowed border-navy/6 bg-transparent text-navy/30 line-through'
-                )}
-              >
-                {t}
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
-
-      <div className="flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-[14px]">
-        <Field label="Name *" htmlFor="booking-name">
-          <input
-            id="booking-name"
-            name="name"
-            autoComplete="name"
-            required
-            value={fields.name}
-            onChange={onField}
-            placeholder="Vor- und Nachname"
-            aria-invalid={showErrors && !nameOk}
-            className={inputClass(showErrors && !nameOk)}
-          />
-        </Field>
-        <Field label="E-Mail *" htmlFor="booking-email">
-          <input
-            id="booking-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={fields.email}
-            onChange={onField}
-            placeholder="name@unternehmen.de"
-            aria-invalid={showErrors && !emailOk}
-            className={inputClass(showErrors && !emailOk)}
-          />
-        </Field>
-        <Field label="Telefon" htmlFor="booking-tel">
-          <input
-            id="booking-tel"
-            name="tel"
-            type="tel"
-            autoComplete="tel"
-            value={fields.tel}
-            onChange={onField}
-            placeholder="+49"
-            className={inputClass(false)}
-          />
-        </Field>
-        {desktop && (
-          <Field label="Unternehmen" htmlFor="booking-firma">
-            <input
-              id="booking-firma"
-              name="firma"
-              autoComplete="organization"
-              value={fields.firma}
-              onChange={onField}
-              placeholder="Firmenname"
-              className={inputClass(false)}
-            />
-          </Field>
-        )}
-      </div>
-
-      <button
-        type="submit"
-        aria-busy={sending}
-        className={cx(
-          'flex h-[58px] items-center justify-center gap-3 rounded-full bg-navy text-[17px] font-medium leading-none text-cream transition-[background-color,opacity] hover:bg-navy-hover lg:h-[62px] lg:text-[18px]',
-          ready && !sending ? 'opacity-100' : 'opacity-55'
-        )}
-      >
-        {buttonLabel}
-        <ArrowUpRight size={15} className="hidden text-gold-light lg:block" />
-      </button>
-
-      {sendError && (
-        <p role="alert" className="-mt-2 text-center text-[14px] leading-[1.4] text-error">
-          Es gab einen Fehler beim Absenden des Formulars. Bitte versuchen Sie es erneut.
-        </p>
-      )}
-
-      <span className="text-center text-[13px] leading-[1.4] text-navy/50">
-        {desktop
-          ? 'Kostenfrei und unverbindlich. Ihre Daten nutzen wir nur für die Terminabstimmung.'
-          : 'Kostenfrei und unverbindlich.'}
-      </span>
-    </form>
-  );
+/** Calendly styled to the card: navy actions and text on the cream surface. */
+function embedSrc(url: string) {
+  const src = new URL(url);
+  src.searchParams.set('embed_domain', window.location.hostname);
+  src.searchParams.set('embed_type', 'Inline');
+  // The card header already names the event, duration and format.
+  src.searchParams.set('hide_event_type_details', '1');
+  src.searchParams.set('hide_landing_page_details', '1');
+  src.searchParams.set('hide_gdpr_banner', '1');
+  src.searchParams.set('primary_color', '000022');
+  src.searchParams.set('text_color', '000022');
+  src.searchParams.set('background_color', 'f4f3ee');
+  return src.toString();
 }
 
-function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
+/**
+ * Calendly behind a click-to-load consent step, as on the other Leibinn sites:
+ * nothing is requested from Calendly (USA) until the visitor clicks "Kalender laden".
+ */
+function BookingCard({ desktop }: { desktop: boolean }) {
+  const [loaded, setLoaded] = useState(false);
+  const [height, setHeight] = useState(700);
+
+  useEffect(() => {
+    if (!loaded) return;
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== 'https://calendly.com') return;
+      const data = e.data as { event?: string; payload?: { height?: string | number } };
+      if (data?.event === 'calendly.page_height') {
+        const h = parseInt(String(data.payload?.height ?? ''), 10);
+        if (h > 0) setHeight(Math.max(h, 480));
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [loaded]);
+
   return (
-    <div className="flex min-w-0 flex-col gap-2">
-      <label htmlFor={htmlFor} className="text-[14px] font-medium leading-none text-navy/66">
-        {label}
-      </label>
-      {children}
+    <div className="flex flex-col rounded-[20px] bg-cream px-4 py-[22px] text-navy lg:rounded-[24px] lg:p-[clamp(28px,3vw,44px)]">
+      <div className="flex flex-col gap-2 lg:gap-2.5">
+        <h3 className="text-[26px] font-medium leading-none tracking-[-0.04em] lg:text-[34px]">Termin wählen</h3>
+        <span className="text-[14px] leading-[1.4] text-navy/60 lg:text-[15px]">
+          60 Min. · Video oder Telefon · kostenfrei
+        </span>
+      </div>
+
+      {loaded ? (
+        <div className="-mx-3 mt-4 lg:mx-0 lg:mt-6">
+          <iframe
+            src={embedSrc(CALENDLY_URL)}
+            title="Erstgespräch mit Cedrik Leibinn buchen"
+            className="block w-full rounded-[14px] border-0"
+            style={{ height }}
+          />
+        </div>
+      ) : (
+        <div className="flex flex-1 flex-col items-start justify-center gap-5 pb-2 pt-8 lg:pb-0 lg:pt-10">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-navy text-gold-light lg:h-16 lg:w-16">
+            <Calendar size={desktop ? 26 : 24} />
+          </span>
+          <p className="text-[24px] font-medium leading-[1.1] tracking-[-0.03em] lg:text-[30px]">
+            Termin direkt online wählen
+          </p>
+          <p className="max-w-[480px] text-[15px] leading-[1.6] text-navy/68 lg:text-[16px]">
+            Die Terminbuchung läuft über Calendly. Erst mit Klick auf „Kalender laden“ wird der Kalender geladen; dabei
+            werden Daten an Calendly LLC (USA) übertragen. Details in der{' '}
+            <a href="/datenschutz" className="text-navy underline decoration-gold underline-offset-4 hover:text-gold-dark">
+              Datenschutzerklärung
+            </a>
+            .
+          </p>
+          <button
+            type="button"
+            onClick={() => setLoaded(true)}
+            className="mt-1 flex h-[58px] w-full items-center justify-center gap-3 rounded-full bg-navy text-[17px] font-medium leading-none text-cream transition-colors hover:bg-navy-hover lg:h-[62px] lg:text-[18px]"
+          >
+            <Calendar size={18} className="text-gold-light" />
+            Kalender laden
+          </button>
+          <span className="self-center text-center text-[13px] leading-[1.4] text-navy/50">
+            {desktop
+              ? 'Kostenfrei und unverbindlich. Ihre Daten nutzen wir nur für die Terminabstimmung.'
+              : 'Kostenfrei und unverbindlich.'}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

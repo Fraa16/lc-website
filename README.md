@@ -36,28 +36,33 @@ src/
 ```
 
 Design tokens (colours, gradients, font) live in `tailwind.config.js` and as CSS
-variables in `src/index.css`. The only font is Instrument Sans (Google Fonts).
+variables in `src/index.css`. The only font is Instrument Sans (self-hosted).
 
 **Breakpoints:** below 900px the mobile design applies (gutters widen from 640px),
 from 900px the desktop design (content max-width 1280px).
 
-## Forms & data
+## Booking, forms & legal pages
 
-Booking and callback requests are stored in the existing Supabase table
-`contact_submissions` (`quelle` = `erstgespraech` or `rueckruf`).
-Apply the migration in `supabase/migrations/20261108120000_booking_fields_on_contact_submissions.sql`
-before deploying, otherwise inserts fail.
-
-The appointment slots are **mock data**: `useAvailability()` in `src/lib/booking.ts`
-returns next week's Mon–Fri with a fixed pattern of booked slots. Replace it with a
-real calendar (Cal.com, Calendly or own backend) – the UI only depends on its return shape.
+- **Booking:** the shared 60-minute Calendly event
+  (`https://calendly.com/beratung-leibinn-consulting/60min`, the same link on every
+  Leibinn site) behind a click-to-load consent step: nothing is requested from
+  Calendly before the visitor clicks "Kalender laden". `VITE_CALENDLY_URL` can override it.
+- **Callback ("Rückruf") in the footer:** stored in the Supabase table
+  `contact_submissions` (`quelle` = `rueckruf`). Apply
+  `supabase/migrations/20261108120000_callback_requests_on_contact_submissions.sql`
+  before deploying, otherwise the insert fails.
+- **Impressum** (`/impressum`): copied 1:1 from the main website; all Leibinn sites
+  share it. `src/main.tsx` picks the page by path, `vercel.json` rewrites every path
+  to `index.html`.
+- **Fonts:** Instrument Sans is self-hosted (`@fontsource-variable/instrument-sans`),
+  so no visitor IP reaches Google.
 
 ## Open before launch
 
-- Real calendar availability + confirmation e-mail (the success screen says
-  "Die Bestätigung geht an …")
+- Datenschutz page (`/datenschutz`): follows once the shared services of all
+  Leibinn sites (forms, tracking, consent) are decided
+- Conversion tracking for ads, with a consent banner
+- Production domain (canonical URL, share image, favicon)
 - Second photo for "Über uns" (`AboutSection.tsx`, marked `TODO(foto)`)
-- Impressum / Datenschutz pages (`Footer.tsx`, marked `TODO(rechtliches)`)
 - Tax figures and sources to be confirmed by a tax advisor
   (600 € § 3 Nr. 34 EStG, 50 € § 8 Abs. 2 S. 11 EStG, BAuA/DAK figures)
-- Favicon / social share image

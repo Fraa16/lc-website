@@ -70,6 +70,13 @@ export const Menu = ({ size = 18, ...p }: IconProps) => (
   </svg>
 );
 
+export const Calendar = ({ size = 20, ...p }: IconProps) => (
+  <svg {...base(size, '0 0 20 20', p)} strokeWidth={1.6}>
+    <rect x="3" y="4.5" width="14" height="12.5" rx="2.5" />
+    <path d="M3 8.5h14M7 2.5v3.5M13 2.5v3.5" />
+  </svg>
+);
+
 /* ---------- Trust items (16) ---------- */
 
 export const Shield = ({ size = 16, ...p }: IconProps) => (
@@ -96,6 +103,13 @@ export const Percent = ({ size = 16, ...p }: IconProps) => (
     <path d="M3.5 12.5l9-9" />
     <circle cx="4.5" cy="4.5" r="2" />
     <circle cx="11.5" cy="11.5" r="2" />
+  </svg>
+);
+
+export const ShieldCheck = ({ size = 24, ...p }: IconProps) => (
+  <svg {...base(size, '0 0 24 24', p)} strokeWidth={1.5}>
+    <path d="M12 3l7 2.8v5.4c0 4.3-3 8-7 9.3-4-1.3-7-5-7-9.3V5.8z" />
+    <path d="M8.8 12.2l2.2 2.2 4.4-4.6" />
   </svg>
 );
 

@@ -18,7 +18,11 @@ export type SectionId =
  */
 export function scrollToSection(id: SectionId) {
   const el = document.getElementById(id);
-  if (!el) return;
+  if (!el) {
+    // Not on the landing page (e.g. /impressum): go there and land on the section.
+    window.location.assign(id === 'top' ? '/' : `/#${id}`);
+    return;
+  }
 
   const offset = isDesktopViewport() ? 100 : 84;
   const top = id === 'top' ? 0 : el.getBoundingClientRect().top + window.scrollY - offset;

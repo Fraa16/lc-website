@@ -27,7 +27,8 @@ export default {
         error: '#A33B2B',
       },
       fontFamily: {
-        sans: ['"Instrument Sans"', 'system-ui', 'sans-serif'],
+        // Self-hosted via @fontsource-variable/instrument-sans (see main.tsx).
+        sans: ['"Instrument Sans Variable"', '"Instrument Sans"', 'system-ui', 'sans-serif'],
       },
       backgroundImage: {
         'gold-gradient': 'linear-gradient(140deg,#E3CD93 0%,#C9A65C 100%)',

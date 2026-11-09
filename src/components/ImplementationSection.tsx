@@ -16,8 +16,8 @@ const steps = [
   {
     tag: '01 / GESPRÄCH',
     title: 'Erstgespräch führen',
-    text: '30 Minuten per Video oder Telefon. Wir klären Ausgangslage, Ziele und Teamgröße.',
-    textMobile: '30 Minuten per Video oder Telefon. Wir klären Ausgangslage, Ziele und Teamgröße.',
+    text: '60 Minuten per Video oder Telefon. Wir klären Ausgangslage, Ziele und Teamgröße.',
+    textMobile: '60 Minuten per Video oder Telefon. Wir klären Ausgangslage, Ziele und Teamgröße.',
   },
   {
     tag: '02 / ANALYSE',

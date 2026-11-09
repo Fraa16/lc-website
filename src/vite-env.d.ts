@@ -1,1 +1,12 @@
 /// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_SUPABASE_URL: string;
+  readonly VITE_SUPABASE_ANON_KEY: string;
+  /** Optional override; defaults to the shared 60-minute Calendly event. */
+  readonly VITE_CALENDLY_URL?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

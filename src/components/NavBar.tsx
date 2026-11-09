@@ -201,7 +201,7 @@ function MobileMenu({
         Erstgespräch buchen
       </button>
       <span className="mt-[14px] text-center text-[14px] leading-none text-cream/60">
-        30 Min. · Video oder Telefon · kostenfrei
+        60 Min. · Video oder Telefon · kostenfrei
       </span>
     </div>
   );

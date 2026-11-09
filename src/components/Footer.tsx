@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useIsDesktop } from '../hooks/useMediaQuery';
-import { submitCallback } from '../lib/booking';
+import { submitCallback } from '../lib/callback';
 import { cx } from '../lib/cx';
 import { scrollToSection, type SectionId } from '../lib/scroll';
 import { ArrowUpRight, Check } from './ui/icons';
@@ -15,10 +15,10 @@ const pageLinks: Array<[string, SectionId]> = [
 
 const services = ['Gesundheitsleistungen', 'Vorsorge', 'Steuerliche Optimierung', 'Digitale Verwaltung'];
 
-// TODO(rechtliches): Point these at the real Impressum / Datenschutz pages before launch.
+// TODO(rechtliches): /datenschutz follows once the shared services are decided.
 const legalLinks = [
-  ['Impressum', '#impressum'],
-  ['Datenschutz', '#datenschutz'],
+  ['Impressum', '/impressum'],
+  ['Datenschutz', '/datenschutz'],
 ];
 
 export default function Footer() {

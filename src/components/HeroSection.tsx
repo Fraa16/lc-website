@@ -1,8 +1,11 @@
 // 1400px export of cedrik-leibinn-hero.webp (original: 3714px / 472 KB).
 import heroImage from '../images/cedrik-leibinn-hero-1400.webp';
+import clientOkafor from '../images/sm.jpg';
+import clientSilic from '../images/sm-1.jpg';
+import clientMueller from '../images/sm-2.jpg';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 import { scrollToSection } from '../lib/scroll';
-import { ArrowUpRight, Card, Percent, Shield, TrendUp, User, Zap } from './ui/icons';
+import { ArrowUpRight, Card, Percent, Shield, ShieldCheck, TrendUp, User, Zap } from './ui/icons';
 import { CountUp } from './ui/Reveal';
 import { Eyebrow, anchorClass } from './ui/SectionHeader';
 
@@ -59,7 +62,7 @@ export default function HeroSection() {
             </div>
           </div>
           <span className="hidden text-[12px] font-semibold uppercase leading-[1.4] tracking-[0.08em] text-navy/60 lg:inline">
-            30 Min. · Video oder Telefon · kostenfrei
+            60 Min. · Video oder Telefon · kostenfrei
           </span>
         </div>
 
@@ -81,6 +84,9 @@ export default function HeroSection() {
             So funktioniert es
           </button>
         </div>
+        <div className="mt-10 hidden lg:block">
+          <TrustRow />
+        </div>
 
         {/* Mobile CTA */}
         <button
@@ -93,7 +99,7 @@ export default function HeroSection() {
         </button>
         <div className="mt-4 flex items-center justify-between sm:max-w-[420px] lg:hidden">
           <span className="text-[11px] font-semibold uppercase leading-[1.4] tracking-[0.08em] text-navy/60">
-            30 Min. · Video oder Telefon
+            60 Min. · Video oder Telefon
           </span>
           <button
             type="button"
@@ -102,6 +108,9 @@ export default function HeroSection() {
           >
             So funktioniert es
           </button>
+        </div>
+        <div className="mt-6 lg:hidden">
+          <TrustRow />
         </div>
       </div>
 
@@ -167,5 +176,41 @@ export default function HeroSection() {
         ))}
       </ul>
     </section>
+  );
+}
+
+/** Same proof points as the main site's hero: client count and IHK registration. */
+function TrustRow() {
+  return (
+    // Side by side where the column is wide enough; stacked in the narrow 900–1279px hero column.
+    <div className="flex flex-col gap-4 sm:grid sm:max-w-[600px] sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-6 lg:flex xl:grid">
+      <div className="flex items-center gap-3">
+        <span aria-hidden="true" className="flex flex-none -space-x-2.5">
+          {[clientOkafor, clientMueller, clientSilic].map((src) => (
+            <img
+              key={src}
+              src={src}
+              alt=""
+              width={40}
+              height={40}
+              className="block h-9 w-9 rounded-full border-2 border-cream object-cover lg:h-10 lg:w-10"
+            />
+          ))}
+        </span>
+        <span className="flex flex-col gap-1">
+          <span className="whitespace-nowrap text-[15px] font-medium leading-none lg:text-[16px]">55+ Mandanten</span>
+          <span className="text-[13px] leading-[1.3] text-navy/60">vertrauen auf unsere Beratung</span>
+        </span>
+      </div>
+      <div className="flex items-center gap-3 sm:border-l sm:border-navy/12 sm:pl-6 lg:border-l-0 lg:pl-0 xl:border-l xl:pl-6">
+        <ShieldCheck size={28} className="flex-none text-gold" />
+        <span className="flex flex-col gap-1">
+          <span className="text-[15px] font-medium leading-none lg:text-[16px]">IHK-registriert</span>
+          <span className="text-[13px] leading-[1.3] text-navy/60">
+            {'Versicherungsmakler nach §\u00A034d\u00A0GewO'}
+          </span>
+        </span>
+      </div>
+    </div>
   );
 }
