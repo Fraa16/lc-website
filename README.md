@@ -66,9 +66,13 @@ from 900px the desktop design (content max-width 1280px).
 
 ## Open before launch
 
-- Datenschutz page (`/datenschutz`): follows once the shared services of all
-  Leibinn sites (forms, tracking, consent) are decided
-- Ad account IDs (Meta, LinkedIn) in Vercel, once the accounts exist
+- Datenschutz page (`/datenschutz`): the shared privacy policy, `src/lib/privacy.ts`, the same file on every
+  Leibinn site (like `consent.ts`): change it in one repo, copy it to the others.
+  The page only says which features the site has; Google Analytics 4 and Google
+  Ads sections appear once their IDs are set, as in the cookie banner. Have the
+  text reviewed by a lawyer before the ads start.
+- Ad account IDs (Meta, LinkedIn, optional Google: `VITE_GA4_ID`, `VITE_GOOGLE_ADS_ID`
+  and its labels) in Vercel, once the accounts exist
 - Production domain (canonical URL, share image, favicon)
 - Second photo for "Über uns" (`AboutSection.tsx`, marked `TODO(foto)`)
 - Tax figures and sources to be confirmed by a tax advisor

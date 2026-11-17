@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { inject } from '@vercel/analytics';
 import App from './App.tsx';
 import ImpressumPage from './pages/ImpressumPage.tsx';
+import DatenschutzPage from './pages/DatenschutzPage.tsx';
 import { initConsent } from './lib/consent';
 // Self-hosted, so no visitor IP reaches Google.
 import '@fontsource-variable/instrument-sans';
@@ -19,6 +20,10 @@ initConsent({
   linkedinPartnerId: import.meta.env.VITE_LINKEDIN_PARTNER_ID,
   linkedinConversionLead: import.meta.env.VITE_LINKEDIN_CONVERSION_LEAD,
   linkedinConversionBooking: import.meta.env.VITE_LINKEDIN_CONVERSION_BOOKING,
+  ga4Id: import.meta.env.VITE_GA4_ID,
+  googleAdsId: import.meta.env.VITE_GOOGLE_ADS_ID,
+  googleAdsLabelLead: import.meta.env.VITE_GOOGLE_ADS_LABEL_LEAD,
+  googleAdsLabelBooking: import.meta.env.VITE_GOOGLE_ADS_LABEL_BOOKING,
   leadsApiUrl: import.meta.env.VITE_LEADS_API_URL,
 });
 
@@ -27,5 +32,7 @@ initConsent({
 const path = window.location.pathname.replace(/\/+$/, '') || '/';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>{path === '/impressum' ? <ImpressumPage /> : <App />}</StrictMode>
+  <StrictMode>
+    {path === '/impressum' ? <ImpressumPage /> : path === '/datenschutz' ? <DatenschutzPage /> : <App />}
+  </StrictMode>
 );

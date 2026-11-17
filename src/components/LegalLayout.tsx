@@ -16,7 +16,7 @@ export default function LegalLayout({
 }) {
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = `${title} | Leibinn Consulting`;
+    document.title = `${title.replace(/\u00AD/g, '')} | Leibinn Consulting`;
     const robots = document.createElement('meta');
     robots.name = 'robots';
     robots.content = 'noindex, follow';
@@ -39,7 +39,7 @@ export default function LegalLayout({
       >
         <div className="max-w-[820px]">
           <Eyebrow>Rechtliches</Eyebrow>
-          <h1 className={cx(h2Default, 'mt-5 lg:mt-[26px]')}>{title}</h1>
+          <h1 className={cx(h2Default, 'mt-5 hyphens-manual break-words lg:mt-[26px]')}>{title}</h1>
           {intro && <p className={cx(leadClass, 'mt-5 text-navy/68 lg:mt-6')}>{intro}</p>}
           <div className="mt-10 divide-y divide-navy/12 border-t border-navy/12 lg:mt-14">{children}</div>
         </div>

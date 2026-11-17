@@ -15,7 +15,6 @@ const pageLinks: Array<[string, SectionId]> = [
 
 const services = ['Gesundheitsleistungen', 'Vorsorge', 'Steuerliche Optimierung', 'Digitale Verwaltung'];
 
-// TODO(rechtliches): /datenschutz follows once the shared services are decided.
 const legalLinks = [
   ['Impressum', '/impressum'],
   ['Datenschutz', '/datenschutz'],
